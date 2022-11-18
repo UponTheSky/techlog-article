@@ -1,27 +1,27 @@
 module.exports = {
   extends: [
-    'eslint:recommended', 
+    'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    'prettier'
+    'prettier',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     tsconfigRootDir: __dirname,
     project: 'tsconfig.json',
-    sourceType: 'module'
+    sourceType: 'module',
   },
   overrides: [
     {
-      files: [`${__dirname}/.eslintrc.js`],
+      files: ['./.eslintrc.js'],
       parserOptions: {
-        project: null
-      }
-    }
+        project: null,
+      },
+    },
   ],
   plugins: ['@typescript-eslint'],
   root: true,
   env: {
-    node: true
-  }
-}
+    node: true,
+  },
+};

@@ -1,2 +1,5 @@
-node_modules/**
-src/tests/
+node_modules
+dist
+src/tests
+**/*.html
+**/*.css
