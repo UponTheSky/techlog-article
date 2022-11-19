@@ -105,3 +105,6 @@ dist
 
 # MacOS specific
 .DS_Store
+
+# Database migrations(prisma)
+**/migrations/*
