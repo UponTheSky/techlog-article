@@ -1,2 +1,2 @@
-export type Timestamp = string;
+export type Timestamp = Date;
 export type UUID = string;

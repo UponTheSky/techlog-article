@@ -2,7 +2,6 @@ import supertest from 'supertest';
 
 import { app } from '../../../app';
 import { prismaClient } from '../../../lib/db';
-import { mainController } from '../../api/main/main.controller';
 
 import { createFakeArticles } from '../../lib/utils';
 
