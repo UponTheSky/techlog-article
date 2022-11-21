@@ -18,7 +18,7 @@ app.use(morgan('combined'));
 app.use('/public', express.static(path.join(__dirname, '../public')));
 
 // add routes
-app.use(mainController.router);
+app.use(mainController.exportRouter());
 
 // add error handlers
 app.use(unknownEndpoint);

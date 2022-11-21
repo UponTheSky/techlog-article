@@ -1,3 +1,3 @@
-import { mainController } from './main/main.controller';
+import { MainController } from './main/main.controller';
 
-export { mainController };
+export const mainController = new MainController();

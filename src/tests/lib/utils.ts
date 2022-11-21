@@ -1,4 +1,4 @@
-import { Article } from '../../api/articles/interfaces/article.interface';
+import { Article } from '@prisma/client';
 import { getMonthsBefore } from '../../utils/date';
 
 export const createFakeArticles = (): Article[] => [

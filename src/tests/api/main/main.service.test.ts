@@ -1,18 +1,25 @@
 import { prismaClientMock } from '../../lib/mockup';
 
-import { mainService } from '../../../api/main/main.service';
+import { MainServiceProvider } from '../../../api/main/main.service';
 import { createFakeArticles } from '../../lib/utils';
 import { getMonthsBefore } from '../../../utils/date';
 
 describe('Testing main service', () => {
-  it('Load static files', async () => {
-    const staticFilelist = ['picture', 'short_intro', 'me'];
-    const staticFileUrls = mainService.getStaticFileUrls(staticFilelist);
+  const mainServiceProvider = new MainServiceProvider();
 
-    expect(staticFileUrls).toHaveLength(staticFilelist.length);
-    expect(staticFileUrls.filter(url => !!url.match(/\/public/))).toHaveLength(
-      staticFilelist.length,
-    );
+  it('Load static files', async () => {
+    const staticFileList = ['picture', 'shortIntro'] as (
+      | 'picture'
+      | 'shortIntro'
+    )[];
+    const staticFileUrls =
+      mainServiceProvider.getStaticFileUrls(staticFileList);
+
+    expect(
+      Object.values<string>(staticFileUrls).filter(
+        url => !!url.match(/\/public/),
+      ),
+    ).toHaveLength(staticFileList.length);
   });
 
   it('Load articles from the DB', async () => {
@@ -22,7 +29,7 @@ describe('Testing main service', () => {
     );
     prismaClientMock.article.findMany.mockResolvedValue(recentArticles);
 
-    await expect(mainService.getRecentArticles(1)).resolves.toEqual(
+    await expect(mainServiceProvider.getRecentArticles(1)).resolves.toEqual(
       recentArticles,
     );
   });

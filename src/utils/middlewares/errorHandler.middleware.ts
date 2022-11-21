@@ -2,7 +2,7 @@ import { RequestHandler, ErrorRequestHandler } from 'express';
 
 import * as logger from '../logger';
 
-export const unknownEndpoint: RequestHandler = (_request, response, _next) => {
+export const unknownEndpoint: RequestHandler = (_request, response): void => {
   response.status(404).json({
     error: 'unknown endpoint',
   });
@@ -11,11 +11,13 @@ export const unknownEndpoint: RequestHandler = (_request, response, _next) => {
 
 export const errorHandler: ErrorRequestHandler = (
   error,
-  request,
-  response,
+  _request,
+  _response,
   next,
-) => {
-  logger.error(error.message);
+): void => {
+  if (error instanceof Error) {
+    logger.error(error);
+  }
 
   // example code
   /**
