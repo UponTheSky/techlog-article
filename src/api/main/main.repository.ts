@@ -1,10 +1,10 @@
 import { Repository } from '../../common/interfaces/repository';
 import { ArticleDTO } from './main.dto';
-import { prismaClient, MainDBClient } from '../../lib/db';
+import { prismaClient } from '../../lib/db';
 import { InternalError } from '../../common/exceptions';
 import { MAIN_ARTICLES_NUMBER } from '../../utils/config';
 
-export class MainRepository implements Repository<MainDBClient, ArticleDTO> {
+export class MainRepository implements Repository<ArticleDTO> {
   dbClient = prismaClient.article;
 
   // eslint-disable-next-line

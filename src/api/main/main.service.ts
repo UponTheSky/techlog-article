@@ -2,12 +2,9 @@ import { ServiceProvider } from '../../common/interfaces/service';
 import { MainResponse, ArticleDTO, StaticFileList } from './main.dto';
 import { getMonthsBefore } from '../../utils/date';
 import { STATIC_ROOT } from '../../utils/config';
-import { MainDBClient } from '../../lib/db';
 import { MainRepository } from './main.repository';
 
-export class MainServiceProvider
-  implements ServiceProvider<MainDBClient, ArticleDTO>
-{
+export class MainServiceProvider implements ServiceProvider<ArticleDTO> {
   repository = new MainRepository();
 
   getStaticFileUrls = (

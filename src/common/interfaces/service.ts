@@ -1,5 +1,5 @@
 import { Repository } from './repository';
 
-export interface ServiceProvider<DBClient, DTO> {
-  readonly repository: Repository<DBClient, DTO>;
+export interface ServiceProvider<DTO> {
+  readonly repository: Repository<DTO>;
 }

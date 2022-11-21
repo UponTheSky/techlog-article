@@ -5,3 +5,4 @@ export type Id = number;
 
 // eslint-disable-next-line
 export type QueryOption = any;
+export type DBClient = any;

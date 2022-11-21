@@ -1,6 +1,6 @@
-import { QueryOption, Id } from '../types';
+import { QueryOption, Id, DBClient } from '../types';
 
-export interface Repository<DBClient, DTO> {
+export interface Repository<DTO> {
   // CRUD operations
   dbClient: DBClient;
 
