@@ -1,14 +1,17 @@
 import { RequestHandler, Router } from 'express';
 
 import { Controller } from '../../common/interfaces/controller';
+import { staticFileList } from './me.dto';
+import { MeServiceProvider } from './me.service';
 
-export class MainController implements Controller<ArticleDTO> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class MeController implements Controller<any> {
   path: string;
   router: Router;
-  serviceProvider = new MainServiceProvider();
+  serviceProvider = new MeServiceProvider();
 
   constructor() {
-    this.path = '/api/main';
+    this.path = '/api/me';
     this.router = Router();
     this.initRouter();
   }
@@ -20,24 +23,14 @@ export class MainController implements Controller<ArticleDTO> {
   }
 
   initRouter(): void {
-    this.router.get('/', this.getMainPage);
+    this.router.get('/', this.getMePage);
   }
 
-  private getMainPage: RequestHandler = async (_request, response, next) => {
+  private getMePage: RequestHandler = (_request, response, next) => {
     try {
-      const staticFileUrls = this.serviceProvider.getStaticFileUrls([
-        'picture',
-        'shortIntro',
-      ]);
-      const articles = await this.serviceProvider.getRecentArticles(1);
-
+      const meUrls = this.serviceProvider.getStaticFileUrls(staticFileList);
       response.json({
-        staticFileUrls,
-        articles,
-        mainUrls: {
-          me: '/api/me',
-          articles: '/api/articles',
-        },
+        meUrls,
       });
     } catch (error) {
       next(error);

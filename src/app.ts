@@ -2,7 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import path from 'path';
 
-import { mainController } from './api';
+import { controllers } from './api';
 
 import {
   unknownEndpoint,
@@ -18,7 +18,9 @@ app.use(morgan('combined'));
 app.use('/public', express.static(path.join(__dirname, '../public')));
 
 // add routes
-app.use(mainController.exportRouter());
+controllers.forEach(controller => {
+  app.use(controller.exportRouter());
+});
 
 // add error handlers
 app.use(unknownEndpoint);
