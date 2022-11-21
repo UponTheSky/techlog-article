@@ -1,6 +1,6 @@
 import { prismaClientMock } from '../../lib/mockup';
 
-import { ArticleServiceProvider } from '../../../api/artice/article.service';
+import { ArticlesServiceProvider } from '../../../api/articles/articles.service';
 import { createFakeArticles } from '../../lib/utils';
 import {
   ARTICLES_ARTICLES_NUMBER,
@@ -8,19 +8,22 @@ import {
 } from '../../../utils/config';
 
 describe('Testing article service', () => {
-  const articlesServiceProvider = new ArticleServiceProvider();
+  const articlesServiceProvider = new ArticlesServiceProvider();
   const currentPage = ARTICLES_DEFAULT_CURRENT_PAGE;
   const nextPage = currentPage + 1;
   const articlesPerPage = ARTICLES_ARTICLES_NUMBER;
   const totalArticles = createFakeArticles();
 
   it(`GET /?currentPage=${nextPage}`, async () => {
-    const nextPageArticles = totalArticles.slice(articlesPerPage * nextPage);
+    const nextPageArticles = totalArticles
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+      .slice(articlesPerPage * nextPage);
     prismaClientMock.article.findMany.mockResolvedValue(nextPageArticles);
+    const responseArticles = (
+      await articlesServiceProvider.getCurrentPageArticlesInfo(nextPage)
+    ).articles;
 
-    await expect(
-      articlesServiceProvider.getCurrentPageArticles(nextPage),
-    ).resolves.toEqual(nextPageArticles);
+    expect(responseArticles[0]).toEqual(nextPageArticles[0]);
   });
 
   it('GET /:articleId => Load a single article from the DB', async () => {

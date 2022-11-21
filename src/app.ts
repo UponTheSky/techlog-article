@@ -2,7 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import path from 'path';
 
-import { mainController } from './api';
+import { mainController, articlesController } from './api';
 
 import {
   unknownEndpoint,
@@ -19,6 +19,7 @@ app.use('/public', express.static(path.join(__dirname, '../public')));
 
 // add routes
 app.use(mainController.exportRouter());
+app.use(articlesController.exportRouter());
 
 // add error handlers
 app.use(unknownEndpoint);

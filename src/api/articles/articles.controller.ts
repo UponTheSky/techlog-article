@@ -32,7 +32,7 @@ export class ArticlesController implements Controller<ArticleDTO> {
     try {
       const currentPageQuery = request.query.currentPage;
 
-      if (!currentPageQuery || typeof currentPageQuery !== 'string') {
+      if (currentPageQuery && typeof currentPageQuery !== 'string') {
         throw new BadRequestError(
           'input query is not valid: only one query value should be passed to',
         );

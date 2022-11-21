@@ -10,13 +10,14 @@ import {
 } from '../../../utils/config';
 
 const apiClient = supertest(app);
+const fakeArticles = createFakeArticles();
 
 beforeAll(async () => {
   await prismaClient.$connect();
   console.log('DB connection open');
 
   await prismaClient.article.createMany({
-    data: createFakeArticles(),
+    data: fakeArticles,
   });
 
   console.log('Fake articles successfully created');
@@ -28,7 +29,7 @@ describe('Testing articles controller', () => {
   it('GET / default currentPage is ARTICLES_DEFAULT_CURRENT_PAGE', async () => {
     const response = await apiClient.get('/api/articles').expect(200);
 
-    expect(response.body.currentPage).toBe(currentPage);
+    expect(response.body.info.currentPage).toBe(currentPage);
   });
 
   it(`GET /?currentPage=${currentPage}`, async () => {
@@ -70,8 +71,8 @@ describe('Testing articles controller', () => {
   it('GET /:articleId', async () => {
     const response = await apiClient.get('/api/articles/2').expect(200);
 
-    const secondArticle = createFakeArticles()[1];
-    expect(response.body).toEqual(secondArticle);
+    const secondArticle = fakeArticles[1];
+    expect(response.body.articleId).toEqual(secondArticle.articleId);
   });
 
   it('GET /:articleId when articleId does not exist', async () => {

@@ -20,7 +20,7 @@ export class ArticlesServiceProvider implements ServiceProvider<ArticleDTO> {
     const take = ARTICLES_ARTICLES_NUMBER;
 
     const currentPageArticles = await this.repository.findMany({ skip, take });
-    if (!currentPageArticles) {
+    if (!currentPageArticles || currentPageArticles.length === 0) {
       throw new NotFoundError(`articles on ${currentPage} have not been found`);
     }
 
@@ -51,7 +51,7 @@ export class ArticlesServiceProvider implements ServiceProvider<ArticleDTO> {
     [key: symbol | string]: number;
   }> => {
     const totalArticlesCount = await this.repository.count();
-    const totalPagesCount = Math.floor(
+    const totalPagesCount = Math.ceil(
       totalArticlesCount / ARTICLES_ARTICLES_NUMBER,
     );
 
