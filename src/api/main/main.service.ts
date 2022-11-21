@@ -9,8 +9,10 @@ export class MainServiceProvider implements ServiceProvider<ArticleDTO> {
 
   getStaticFileUrls = (
     staticFileList: StaticFileList,
-  ): MainResponse['staticFileUrls'] => {
-    let staticFileUrls = {} as MainResponse['staticFileUrls'];
+  ): MainResponse['mainUrls'] => {
+    let staticFileUrls = {} as MainResponse['mainUrls'];
+    const rootPath = `${STATIC_ROOT}/main`;
+
     staticFileList.forEach(file => {
       let ext = '';
       switch (file) {
@@ -18,14 +20,14 @@ export class MainServiceProvider implements ServiceProvider<ArticleDTO> {
           ext = 'png';
           break;
         case 'shortIntro':
-          ext = 'txt';
+          ext = 'md';
           break;
         default:
           break;
       }
       staticFileUrls = {
         ...staticFileUrls,
-        [file]: `/${STATIC_ROOT}/${file}.${ext}`,
+        [file]: `/${rootPath}/${file}.${ext}`,
       };
     });
 

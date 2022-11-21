@@ -25,9 +25,9 @@ describe('Testing main controller', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/);
 
-    expect(response.body).toHaveProperty('staticFileUrls');
-    expect(response.body.staticFileUrls).toHaveProperty('picture');
-    expect(response.body.staticFileUrls).toHaveProperty('shortIntro');
+    expect(response.body).toHaveProperty('mainUrls');
+    expect(response.body.mainUrls).toHaveProperty('picture');
+    expect(response.body.mainUrls).toHaveProperty('shortIntro');
 
     expect(response.body).toHaveProperty('articles');
     expect(response.body.articles[0]).toHaveProperty('thumbnail');
@@ -35,9 +35,9 @@ describe('Testing main controller', () => {
     expect(response.body.articles[0]).toHaveProperty('excerpt');
     expect(response.body.articles[0]).toHaveProperty('articleId');
 
-    expect(response.body).toHaveProperty('mainUrls');
-    expect(response.body.mainUrls).toHaveProperty('me');
-    expect(response.body.mainUrls).toHaveProperty('articles');
+    expect(response.body).toHaveProperty('menuUrls');
+    expect(response.body.menuUrls).toHaveProperty('me');
+    expect(response.body.menuUrls).toHaveProperty('articles');
   });
 });
 

@@ -27,16 +27,17 @@ export class MainController implements Controller<ArticleDTO> {
 
   private getMainPage: RequestHandler = async (_request, response, next) => {
     try {
-      const staticFileUrls = this.serviceProvider.getStaticFileUrls([
+      const mainUrls = this.serviceProvider.getStaticFileUrls([
         'picture',
         'shortIntro',
       ]);
+
       const articles = await this.serviceProvider.getRecentArticles(1);
 
       response.json({
-        staticFileUrls,
+        mainUrls,
         articles,
-        mainUrls: {
+        menuUrls: {
           me: '/api/me',
           articles: '/api/articles',
         },
