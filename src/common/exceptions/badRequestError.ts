@@ -1,11 +1,11 @@
-export class InternalError extends Error {
+export class BadRequestError extends Error {
   name: string;
   status: number;
 
   constructor(message: string) {
     super();
-    this.status = 500;
-    this.name = 'InternalError';
+    this.status = 400;
+    this.name = 'BadRequestError';
     this.message = message;
   }
 }

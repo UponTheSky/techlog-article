@@ -25,11 +25,10 @@ beforeAll(async () => {
 describe('Testing articles controller', () => {
   const currentPage = ARTICLES_DEFAULT_CURRENT_PAGE;
 
-  it('GET / redirect', async () => {
-    await apiClient
-      .get('/api/articles')
-      .expect(301)
-      .expect('Location', `/?currentPage=${currentPage}`);
+  it('GET / default currentPage is ARTICLES_DEFAULT_CURRENT_PAGE', async () => {
+    const response = await apiClient.get('/api/articles').expect(200);
+
+    expect(response.body.currentPage).toBe(currentPage);
   });
 
   it(`GET /?currentPage=${currentPage}`, async () => {
