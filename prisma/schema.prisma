@@ -29,5 +29,5 @@ model Article {
   title String @db.VarChar(255) 
   excerpt String? @db.VarChar(255)
   content String? @db.LongText
-  articleId String
+  articleId String @unique
 }
