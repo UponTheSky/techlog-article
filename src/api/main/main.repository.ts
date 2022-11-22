@@ -7,9 +7,10 @@ import { MAIN_ARTICLES_NUMBER } from '../../utils/config';
 export class MainRepository implements Repository<ArticleDTO> {
   dbClient = prismaClient.article;
 
-  // eslint-disable-next-line
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   findMany = async (monthsBefore: Date) => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const queryOption: any = {
         take: MAIN_ARTICLES_NUMBER,
         where: {

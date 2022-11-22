@@ -1,4 +1,5 @@
 import supertest from 'supertest';
+import { staticFileList } from '../../../api/me/me.dto';
 
 import { app } from '../../../app';
 
@@ -12,11 +13,12 @@ describe('Testing me controller', () => {
       .expect('Content-Type', /application\/json/);
 
     expect(response.body).toHaveProperty('meUrls');
-    expect(response.body.meUrls).toHaveProperty('profile');
-    expect(response.body.meUrls).toHaveProperty('shortIntro');
-    expect(response.body.meUrls).toHaveProperty('education');
-    expect(response.body.meUrls).toHaveProperty('workExperience');
-    expect(response.body.meUrls).toHaveProperty('compSci');
-    expect(response.body.meUrls).toHaveProperty('hobbies');
+    expect(Object.keys(response.body.meUrls)).toHaveLength(
+      staticFileList.length,
+    );
+
+    staticFileList.forEach(file => {
+      expect(response.body.meUrls).toHaveProperty(file);
+    });
   });
 });
