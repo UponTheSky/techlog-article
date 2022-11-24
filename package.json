@@ -10,7 +10,7 @@
     "migrate:test": "dotenv -e .env.test -- npx prisma migrate dev --name init-test",
     "dev": "dotenv -e .env ts-node-dev ./src/server.ts",
     "test": "yarn migrate:test && dotenv -e .env.test jest --runInBand ./src/tests",
-    "build": "tsc --verbose",
+    "build": "tsc",
     "start": "yarn build && node ./dist/server.js",
     "prepare": "husky install"
   },
@@ -26,6 +26,7 @@
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.14",
     "@types/jest": "^29.2.3",
+    "@types/jsonwebtoken": "^8.5.9",
     "@types/morgan": "^1.9.3",
     "@types/node": "^18.11.9",
     "@types/supertest": "^2.0.12",
@@ -54,7 +55,6 @@
     "bcrypt": "^5.1.0",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "express-jwt": "^7.7.7",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
     "uuid": "^9.0.0"

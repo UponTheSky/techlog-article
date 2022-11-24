@@ -212,7 +212,7 @@ describe('Testing admin page & login', () => {
   // });
 });
 
-describe('admin article CRUD /admin/article', () => {
+describe('admin article CRUD /admin/articles', () => {
   const testArticleId = '1';
   const fakeArticleId = 'fake';
   const testArticle = {
@@ -240,18 +240,18 @@ describe('admin article CRUD /admin/article', () => {
   describe('CREATE', () => {
     it('fake or no token', async () => {
       await apiClient
-        .post('/admin/article')
+        .post('/admin/articles')
         .auth(fakeToken, { type: 'bearer' })
         .send(testArticle)
         .expect(401);
 
-      await apiClient.post('/admin/article').send(testArticle).expect(401);
+      await apiClient.post('/admin/articles').send(testArticle).expect(401);
     });
 
     describe('valid token', () => {
       it('when bad objects are passed over', async () => {
         const withoutIdResponse = await apiClient
-          .post('/admin/article')
+          .post('/admin/articles')
           .auth(token, { type: 'bearer' })
           .send(testArticleWithoutId)
           .expect(400);
@@ -259,7 +259,7 @@ describe('admin article CRUD /admin/article', () => {
         expect(withoutIdResponse.body.error).toContain('id');
 
         const withoutTitleResponse = await apiClient
-          .post('/admin/article')
+          .post('/admin/articles')
           .auth(token, { type: 'bearer' })
           .send(testArticleWithoutTitle)
           .expect(400);
@@ -269,7 +269,7 @@ describe('admin article CRUD /admin/article', () => {
 
       it('when a normal object is passed over', async () => {
         await apiClient
-          .post('/admin/article')
+          .post('/admin/articles')
           .auth(token, { type: 'bearer' })
           .send(testArticle)
           .expect(201)
@@ -281,21 +281,21 @@ describe('admin article CRUD /admin/article', () => {
   describe('READ', () => {
     it('fake or no token', async () => {
       await apiClient
-        .get(`/admin/article/${testArticleId}`)
+        .get(`/admin/articles/${testArticleId}`)
         .auth(fakeToken, { type: 'bearer' })
         .expect(401);
 
-      await apiClient.get('/admin/article').expect(401);
+      await apiClient.get('/admin/articles').expect(401);
     });
 
     it('valid token', async () => {
       await apiClient
-        .get(`/admin/article/${testArticleId}`)
+        .get(`/admin/articles/${testArticleId}`)
         .auth(token, { type: 'bearer' })
         .expect(200);
 
       await apiClient
-        .get(`/admin/article/${fakeArticleId}`)
+        .get(`/admin/articles/${fakeArticleId}`)
         .auth(token, { type: 'bearer' })
         .expect(404);
     });
@@ -304,22 +304,22 @@ describe('admin article CRUD /admin/article', () => {
   describe('UPDATE', () => {
     it('fake or no token', async () => {
       await apiClient
-        .put(`/admin/article/${testArticleId}`)
+        .put(`/admin/articles/${testArticleId}`)
         .auth(fakeToken, { type: 'bearer' })
         .expect(401);
 
-      await apiClient.put(`/admin/article/${testArticleId}`).expect(401);
+      await apiClient.put(`/admin/articles/${testArticleId}`).expect(401);
     });
 
     it('valid token', async () => {
       await apiClient
-        .put(`/admin/article/${testArticleId}`)
+        .put(`/admin/articles/${testArticleId}`)
         .auth(token, { type: 'bearer' })
         .send({ title: '' })
         .expect(200);
 
       await apiClient
-        .put(`/admin/article/${fakeArticleId}`)
+        .put(`/admin/articles/${fakeArticleId}`)
         .auth(token, { type: 'bearer' })
         .send({ title: '' })
         .expect(404);
@@ -329,21 +329,21 @@ describe('admin article CRUD /admin/article', () => {
   describe('DELETE', () => {
     it('fake or no token', async () => {
       await apiClient
-        .delete(`/admin/article/${testArticleId}`)
+        .delete(`/admin/articles/${testArticleId}`)
         .auth(fakeToken, { type: 'bearer' })
         .expect(401);
 
-      await apiClient.delete(`/admin/article/${testArticleId}`).expect(401);
+      await apiClient.delete(`/admin/articles/${testArticleId}`).expect(401);
     });
 
     it('valid token', async () => {
       await apiClient
-        .delete(`/admin/article/${testArticleId}`)
+        .delete(`/admin/articles/${testArticleId}`)
         .auth(token, { type: 'bearer' })
         .expect(204);
 
       await apiClient
-        .delete(`/admin/article/${fakeArticleId}`)
+        .delete(`/admin/articles/${fakeArticleId}`)
         .auth(token, { type: 'bearer' })
         .expect(404);
     });

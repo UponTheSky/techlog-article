@@ -26,6 +26,7 @@ export class AdminLoginServiceProvider implements ServiceProvider<TokenDTO> {
         id: adminUser.id,
       },
       SECRET_KEY,
+      { expiresIn: '3600s' },
     );
 
     return token;

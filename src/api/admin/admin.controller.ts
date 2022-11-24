@@ -1,33 +1,62 @@
 import { RequestHandler, Router } from 'express';
 
-import { ArticleDTO } from './articles.dto';
+import { ArticleDTO } from './admin.dto';
 import { Controller } from '../../common/interfaces/controller';
-import { ArticlesServiceProvider } from './articles.service';
-import { ARTICLES_DEFAULT_CURRENT_PAGE } from '../../utils/config';
-import { BadRequestError, NotFoundError } from '../../common/exceptions';
+import { ArticlesServiceProvider } from '../articles/articles.service';
+import { AdminLoginServiceProvider } from './admin.login.service';
+import {
+  ADMIN_ARTICLES_NUMBER,
+  ARTICLES_DEFAULT_CURRENT_PAGE,
+  SECRET_KEY,
+} from '../../utils/config';
+import { BadRequestError } from '../../common/exceptions';
+import { jwtHandler } from '../../utils/middlewares/jwt.middleware';
 
-export class ArticlesController implements Controller<ArticleDTO> {
+export class AdminController implements Controller<ArticleDTO> {
   path: string;
   router: Router;
   serviceProvider = new ArticlesServiceProvider();
+  loginServiceProvider = new AdminLoginServiceProvider();
 
   constructor() {
-    this.path = '/api/articles';
+    this.path = '/api/admin';
     this.router = Router();
     this.initRouter();
   }
 
   exportRouter(): Router {
     const exportedRouter = Router();
+    exportedRouter.use(jwtHandler);
     exportedRouter.use(this.path, this.router);
     return exportedRouter;
   }
 
   initRouter(): void {
-    this.router.get('/', this.getCurrentPage);
-    this.router.get('/:articleId', this.getIndividualPage);
+    this.router.get('/', this.defaultPageRouter);
+    this.router.get('/articles', this.getCurrentPage);
+    this.router.get('/articles/:articleId', this.getIndividualPage);
+    this.router.get('/login', this.login);
   }
 
+  // default page router
+  private defaultPageRouter: RequestHandler = async (
+    request,
+    response,
+    next,
+  ) => {
+    try {
+      if (!request.decodedToken) {
+        response.status(301).redirect('/admin/login');
+        return;
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // articles
+
+  // READ
   private getCurrentPage: RequestHandler = async (request, response, next) => {
     try {
       const currentPageQuery = request.query.currentPage;
@@ -42,7 +71,10 @@ export class ArticlesController implements Controller<ArticleDTO> {
         Number(request.query.currentPage as string) ||
         ARTICLES_DEFAULT_CURRENT_PAGE;
       const currentPageArticlesInfo =
-        await this.serviceProvider.getCurrentPageArticlesInfo(currentPage);
+        await this.serviceProvider.getCurrentPageArticlesInfo(
+          currentPage,
+          ADMIN_ARTICLES_NUMBER,
+        );
 
       response.json(currentPageArticlesInfo);
     } catch (error) {
@@ -57,16 +89,33 @@ export class ArticlesController implements Controller<ArticleDTO> {
   ) => {
     try {
       const articleId = request.params.articleId;
-
       if (!articleId) {
         throw new BadRequestError('article Id has not been passed to');
       }
 
       const article = await this.serviceProvider.getUniqueArticle(articleId);
 
-      if (!article) {
-        throw new NotFoundError(`no corresponding data to ${articleId}`);
+      response.json(article);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // CREATE
+
+  // UPDATE
+
+  // DELETE
+
+  // login
+  private login: RequestHandler = async (request, response, next) => {
+    try {
+      const articleId = request.params.articleId;
+      if (!articleId) {
+        throw new BadRequestError('article Id has not been passed to');
       }
+
+      const article = await this.serviceProvider.getUniqueArticle(articleId);
 
       response.json(article);
     } catch (error) {
