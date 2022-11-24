@@ -29,6 +29,8 @@ describe('Testing articles controller', () => {
   it('GET / default currentPage is ARTICLES_DEFAULT_CURRENT_PAGE', async () => {
     const response = await apiClient.get('/api/articles').expect(200);
 
+    expect(response.body).toHaveProperty('info');
+    expect(response.body.info).toHaveProperty('currentPage');
     expect(response.body.info.currentPage).toBe(currentPage);
   });
 
@@ -38,10 +40,8 @@ describe('Testing articles controller', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/);
 
-    expect(response.body).toHaveProperty('info');
     expect(response.body.info).toHaveProperty('totalArticlesCount');
     expect(response.body.info).toHaveProperty('totalPagesCount');
-    expect(response.body.info).toHaveProperty('currentPage');
     expect(response.body.info.currentPage).toBe(currentPage);
 
     expect(response.body).toHaveProperty('articles');

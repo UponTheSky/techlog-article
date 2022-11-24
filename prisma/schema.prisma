@@ -18,6 +18,7 @@ model AdminUser {
   firstName String
   lastName String
   passwordHash String
+  userId String @unique
 }
 
 // article model

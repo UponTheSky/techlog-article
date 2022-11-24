@@ -13,3 +13,7 @@ export const MAIN_ARTICLES_NUMBER = 4;
 // api/articles config
 export const ARTICLES_ARTICLES_NUMBER = 6;
 export const ARTICLES_DEFAULT_CURRENT_PAGE = 0;
+
+// api/admin config
+export const ADMIN_ARTICLES_NUMBER = 10;
+export const ADMIN_DEFAULT_CURRENT_PAGE = 0;
