@@ -1,10 +1,18 @@
+import { v4 as uuid } from 'uuid';
+
 import { Repository } from '../../common/interfaces/repository';
 import { ArticleDTO } from './articles.dto';
 import { prismaClient } from '../../lib/db';
-import { InternalError } from '../../common/exceptions';
+import {
+  BadRequestError,
+  InternalError,
+  NotFoundError,
+} from '../../common/exceptions';
 
 export class ArticlesRepository implements Repository<ArticleDTO> {
   dbClient = prismaClient.article;
+
+  // READ
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   findMany = async (options: any): Promise<ArticleDTO[] | undefined> => {
@@ -31,16 +39,63 @@ export class ArticlesRepository implements Repository<ArticleDTO> {
   };
 
   findUnique = async (
-    articleId: ArticleDTO['articleId'],
+    id: ArticleDTO['articleId'],
   ): Promise<ArticleDTO | null> => {
     return await this.dbClient.findUnique({
       where: {
-        articleId,
+        articleId: id,
       },
     });
   };
 
   count = async (): Promise<number> => {
     return await this.dbClient.count();
+  };
+
+  // UPDATE
+  updateById = async (
+    id: ArticleDTO['articleId'],
+    data: Partial<ArticleDTO>,
+  ): Promise<ArticleDTO | null> => {
+    return await this.dbClient.update({
+      where: {
+        articleId: id,
+      },
+      data,
+    });
+  };
+
+  // CREATE
+  create = async (data: Partial<ArticleDTO>): Promise<ArticleDTO> => {
+    const { thumbnail, title, excerpt, content } = data;
+
+    if (!title || title.length === 0) {
+      throw new BadRequestError('an article must have its title');
+    }
+
+    return await this.dbClient.create({
+      data: {
+        thumbnail,
+        title,
+        excerpt,
+        content,
+        articleId: uuid(),
+      },
+    });
+  };
+
+  // DELETE
+  deleteById = async (id: ArticleDTO['articleId']): Promise<ArticleDTO> => {
+    const deletedArticle = await this.dbClient.delete({
+      where: {
+        articleId: id,
+      },
+    });
+
+    if (!deletedArticle) {
+      throw new NotFoundError(`there is no article with id ${id}`);
+    }
+
+    return deletedArticle;
   };
 }
