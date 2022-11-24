@@ -3,11 +3,8 @@ import { v4 as uuid } from 'uuid';
 import { Repository } from '../../common/interfaces/repository';
 import { ArticleDTO } from './articles.dto';
 import { prismaClient } from '../../lib/db';
-import {
-  BadRequestError,
-  InternalError,
-  NotFoundError,
-} from '../../common/exceptions';
+import { BadRequestError, InternalError } from '../../common/exceptions';
+import { Prisma } from '@prisma/client';
 
 export class ArticlesRepository implements Repository<ArticleDTO> {
   dbClient = prismaClient.article;
@@ -56,13 +53,20 @@ export class ArticlesRepository implements Repository<ArticleDTO> {
   updateById = async (
     id: ArticleDTO['articleId'],
     data: Partial<ArticleDTO>,
-  ): Promise<ArticleDTO | null> => {
-    return await this.dbClient.update({
-      where: {
-        articleId: id,
-      },
-      data,
-    });
+  ): Promise<ArticleDTO | null | undefined> => {
+    try {
+      return await this.dbClient.update({
+        where: {
+          articleId: id,
+        },
+        data,
+      });
+    } catch (error) {
+      if (error instanceof Prisma.NotFoundError) {
+        return null;
+      }
+      return;
+    }
   };
 
   // CREATE
@@ -85,17 +89,20 @@ export class ArticlesRepository implements Repository<ArticleDTO> {
   };
 
   // DELETE
-  deleteById = async (id: ArticleDTO['articleId']): Promise<ArticleDTO> => {
-    const deletedArticle = await this.dbClient.delete({
-      where: {
-        articleId: id,
-      },
-    });
-
-    if (!deletedArticle) {
-      throw new NotFoundError(`there is no article with id ${id}`);
+  deleteById = async (
+    id: ArticleDTO['articleId'],
+  ): Promise<ArticleDTO | null | undefined> => {
+    try {
+      return await this.dbClient.delete({
+        where: {
+          articleId: id,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.NotFoundError) {
+        return null;
+      }
+      return;
     }
-
-    return deletedArticle;
   };
 }

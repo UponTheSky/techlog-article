@@ -14,7 +14,7 @@ export class AdminLoginServiceProvider implements ServiceProvider<TokenDTO> {
   }: LoginDTO): Promise<TokenDTO> => {
     const adminUser = await this.repository.findUnique(userId);
     const passwordCorrect =
-      adminUser && (await bcrypt.compare(adminUser.passwordHash, password));
+      adminUser && (await bcrypt.compare(password, adminUser.passwordHash));
 
     if (!adminUser || !passwordCorrect) {
       throw new UnAuthorizedError('either user id or password is invalid');
