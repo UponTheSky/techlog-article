@@ -85,7 +85,7 @@ describe('Testing admin page & login', () => {
           userId: 'fakeUserId',
           password: 'test',
         })
-        .expect(400);
+        .expect(401);
 
       await apiClient
         .post('/admin/login')
@@ -93,7 +93,7 @@ describe('Testing admin page & login', () => {
           userId: 'test',
           password: 'fakeUserPassword',
         })
-        .expect(400);
+        .expect(401);
     });
   });
 

@@ -17,3 +17,4 @@ export const ARTICLES_DEFAULT_CURRENT_PAGE = 0;
 // api/admin config
 export const ADMIN_ARTICLES_NUMBER = 10;
 export const ADMIN_DEFAULT_CURRENT_PAGE = 0;
+export const SECRET_KEY = process.env.SECRET_KEY as string;

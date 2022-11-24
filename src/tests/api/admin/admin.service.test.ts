@@ -1,9 +1,12 @@
 import { prismaClientMock } from '../../lib/mockup';
 
-import { AdminServiceProvider } from '../../../api/admin/admin.service';
+import { AdminLoginServiceProvider } from '../../../api/admin/admin.login.service';
+
+import { createFakeArticles } from '../../lib/utils';
+import { ADMIN_ARTICLES_NUMBER } from '../../../utils/config';
 
 describe('Testing admin service', () => {
-  const adminServiceProvider = new AdminServiceProvider();
+  const adminLoginServiceProvider = new AdminLoginServiceProvider();
   const userId = 'test';
   const password = 'test';
   const fakeUserId = 'fake';
@@ -26,7 +29,7 @@ describe('Testing admin service', () => {
 
   describe('login and logout', () => {
     it('id and password validation', async () => {
-      const token = await adminServiceProvider.validateUserInfo({
+      const token = await adminLoginServiceProvider.validateUserInfo({
         info: {
           userId,
           password,
@@ -36,10 +39,10 @@ describe('Testing admin service', () => {
       expect(token).toBeTruthy();
 
       expect(async () => {
-        await adminServiceProvider.validateUserInfo({
+        await adminLoginServiceProvider.validateUserInfo({
           info: {
-            fakeUserId,
-            fakePassword,
+            userId: fakeUserId,
+            password: fakePassword,
           },
         });
       }).toThrow();
@@ -59,14 +62,49 @@ describe('Testing admin service', () => {
       expect(createdArticle.articleId).toBe(articleInput.articleId);
     });
 
-    it('READ', async () => {
+    it('READ a single article', async () => {
       prismaClientMock.article.findUnique.mockResolvedValue(articleSample);
-      const readArticle = await adminServiceProvider.read(articleSample.id);
+      const readArticle = await adminServiceProvider.getUniqueArticle(
+        articleSample.id,
+      );
 
       expect(readArticle).toEqual(articleSample);
 
+      prismaClientMock.article.findUnique.mockRejectedValue(new Error());
+
       expect(async () => {
-        await adminServiceProvider.read('fakeArticleId');
+        await adminServiceProvider.getUniqueArticle('fakeArticleId');
+      }).toThrow();
+    });
+
+    it('READ with paging', async () => {
+      const articles = createFakeArticles();
+      const currentPage = 0;
+      prismaClientMock.article.findMany.mockResolvedValue(articles);
+
+      const articlesWithCurrentPage =
+        await adminServiceProvider.getCurrentPageArticlesInfo(currentPage);
+
+      expect(articlesWithCurrentPage).toHaveProperty('info');
+
+      expect(articlesWithCurrentPage.info).toHaveProperty('totalArticlesCount');
+      expect(articlesWithCurrentPage.info.totalArticlesCount).toBe(
+        articles.length,
+      );
+
+      expect(articlesWithCurrentPage.info).toHaveProperty('totalPagesCount');
+      expect(articlesWithCurrentPage.info.totalPagesCount).toBe(
+        Math.ceil(articles.length / ADMIN_ARTICLES_NUMBER),
+      );
+
+      expect(articlesWithCurrentPage.info).toHaveProperty('currentPage');
+      expect(articlesWithCurrentPage.info.currentPage).toBe(currentPage);
+
+      expect(articlesWithCurrentPage).toHaveProperty('articles');
+      expect(articles).toContain(articlesWithCurrentPage.articles);
+
+      expect(async () => {
+        await adminServiceProvider.getCurrentPageArticlesInfo(1000);
       }).toThrow();
     });
 
@@ -81,6 +119,7 @@ describe('Testing admin service', () => {
 
       expect(updatedArticle).toEqual(modifiedArticle);
 
+      prismaClientMock.article.update.mockRejectedValue(new Error());
       expect(async () => {
         await adminServiceProvider.update('fakeArticleId', {});
       }).toThrow();
@@ -95,6 +134,7 @@ describe('Testing admin service', () => {
 
       expect(deletedArticle).toEqual(articleSample);
 
+      prismaClientMock.article.delete.mockRejectedValue(new Error());
       expect(async () => {
         await adminServiceProvider.delete('fakeArticleId');
       }).toThrow();
