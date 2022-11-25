@@ -43,10 +43,8 @@ describe('Testing admin service', () => {
       });
 
       const token = await adminLoginServiceProvider.validateUserInfo({
-        info: {
-          userId,
-          password,
-        },
+        userId,
+        password,
       });
 
       expect(token).toBeTruthy();
@@ -57,19 +55,15 @@ describe('Testing admin service', () => {
 
       expect(async () => {
         await adminLoginServiceProvider.validateUserInfo({
-          info: {
-            userId,
-            password: fakePassword,
-          },
+          userId,
+          password: fakePassword,
         });
       }).rejects.toThrow('either user id or password is invalid');
 
       expect(async () => {
         await adminLoginServiceProvider.validateUserInfo({
-          info: {
-            userId: fakeUserId,
-            password,
-          },
+          userId: fakeUserId,
+          password,
         });
       }).rejects.toThrow('either user id or password is invalid');
     });
