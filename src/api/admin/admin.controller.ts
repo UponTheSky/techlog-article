@@ -7,7 +7,6 @@ import { AdminLoginServiceProvider } from './admin.login.service';
 import {
   ADMIN_ARTICLES_NUMBER,
   ARTICLES_DEFAULT_CURRENT_PAGE,
-  SECRET_KEY,
 } from '../../utils/config';
 import { BadRequestError } from '../../common/exceptions';
 import { jwtHandler } from '../../utils/middlewares/jwt.middleware';
@@ -35,7 +34,10 @@ export class AdminController implements Controller<ArticleDTO> {
     this.router.get('/', this.defaultPageRouter);
     this.router.get('/articles', this.getCurrentPage);
     this.router.get('/articles/:articleId', this.getIndividualPage);
-    this.router.get('/login', this.login);
+    // this.router.post('/articles', this.)
+    // this.router.put('/articles/:articleId)
+    // this.router.delete('/articles/:articleId)
+    this.router.post('/login', this.login);
   }
 
   // default page router
@@ -45,10 +47,8 @@ export class AdminController implements Controller<ArticleDTO> {
     next,
   ) => {
     try {
-      if (!request.decodedToken) {
-        response.status(301).redirect('/admin/login');
-        return;
-      }
+      response.status(301).redirect(`${request.baseUrl}/articles`);
+      return;
     } catch (error) {
       next(error);
     }
@@ -110,14 +110,14 @@ export class AdminController implements Controller<ArticleDTO> {
   // login
   private login: RequestHandler = async (request, response, next) => {
     try {
-      const articleId = request.params.articleId;
-      if (!articleId) {
-        throw new BadRequestError('article Id has not been passed to');
+      if (!request.decodedToken) {
+        const { info } = request.body;
+
+        const token = await this.loginServiceProvider.validateUserInfo(info);
+
+        response.status(301).json({ token }).redirect(request.baseUrl);
+      } else {
       }
-
-      const article = await this.serviceProvider.getUniqueArticle(articleId);
-
-      response.json(article);
     } catch (error) {
       next(error);
     }
