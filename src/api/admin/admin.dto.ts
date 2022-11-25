@@ -1,10 +1,8 @@
 import { AdminUser, Article } from '@prisma/client';
 
 export interface LoginDTO {
-  info: {
-    userId: string;
-    password: string;
-  };
+  userId: string;
+  password: string;
 }
 
 export type AdminUserDTO = AdminUser;

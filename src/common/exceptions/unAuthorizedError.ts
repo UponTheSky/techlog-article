@@ -1,11 +1,8 @@
-export class UnAuthorizedError extends Error {
-  name: string;
-  status: number;
+import { HttpError } from './httpError';
 
+export class UnAuthorizedError extends HttpError {
   constructor(message: string) {
-    super();
-    this.status = 401;
-    this.name = 'UnAuthorizedError';
+    super(401, 'UnAuthorizedError');
     this.message = message;
   }
 }

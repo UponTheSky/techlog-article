@@ -35,28 +35,19 @@ beforeAll(async () => {
     },
   });
 
-  const loginResponse = await apiClient.post('/admin/login').send({
+  const loginResponse = await apiClient.post('/api/admin/login').send({
     userId: 'test',
     password: 'test',
   });
   token = loginResponse.body.token;
 
-  console.log('a jwt token has been successfully generated');
+  console.log(`a jwt token: ${token} has been successfully generated`);
 
   // Redis Cache DB
   // TBA
 });
 
 describe('Testing admin page & login', () => {
-  describe('case #0: redirect', () => {
-    it('GET /api/admin => redirect to /api/admin/articles', async () => {
-      await apiClient
-        .get('api/admin')
-        .expect(301)
-        .expect('Location', '/api/admin/articles');
-    });
-  });
-
   describe('case #1: without a token', () => {
     it('GET /api/admin/articles', async () => {
       await apiClient.get('/api/admin/articles').expect(401);
@@ -73,8 +64,7 @@ describe('Testing admin page & login', () => {
           userId: 'test',
           password: 'test',
         })
-        .expect(301)
-        .expect('Location', '/api/admin/articles');
+        .expect(301);
 
       expect(response.body).toHaveProperty('token');
     });
@@ -115,7 +105,7 @@ describe('Testing admin page & login', () => {
 
     it(`GET /api/admin/articles?currentPage=${currentPage}`, async () => {
       const response = await apiClient
-        .get(`/api/admin/articles?=${currentPage}`)
+        .get(`/api/admin/articles?currentPage=${currentPage}`)
         .auth(token, { type: 'bearer' })
         .expect(200)
         .expect('Content-Type', /application\/json/);
@@ -137,17 +127,9 @@ describe('Testing admin page & login', () => {
 
     it(`GET ?currentPage when currentPage >= (totalPagesCount / articlesPerPage)`, async () => {
       await apiClient
-        .get(`/api/admin/articles?${totalPagesCount}`)
+        .get(`/api/admin/articles?currentPage=${totalPagesCount + 1000}`)
         .auth(token, { type: 'bearer' })
         .expect(404);
-    });
-
-    it('GET /api/admin/login', async () => {
-      await apiClient
-        .get('/api/admin/login')
-        .auth(token, { type: 'bearer' })
-        .expect(301)
-        .expect('Location', '/api/admin/articles');
     });
 
     it('POST /api/admin/login', async () => {
@@ -158,8 +140,7 @@ describe('Testing admin page & login', () => {
           userId: 'test',
           password: 'test',
         })
-        .expect(301)
-        .expect('Location', '/api/admin/articles');
+        .expect(301);
     });
   });
 
@@ -184,8 +165,7 @@ describe('Testing admin page & login', () => {
           userId: 'test',
           password: 'test',
         })
-        .expect(301)
-        .expect('Location', '/api/admin/articles');
+        .expect(301);
     });
   });
 
@@ -218,13 +198,6 @@ describe('admin article CRUD /api/admin/articles', () => {
     articleId: 'test',
   };
 
-  const testArticleWithoutId = {
-    thumbnail: '',
-    title: 'test',
-    excerpt: 'test',
-    content: 'test',
-  };
-
   const testArticleWithoutTitle = {
     thumbnail: '',
     excerpt: 'test',
@@ -245,14 +218,6 @@ describe('admin article CRUD /api/admin/articles', () => {
 
     describe('valid token', () => {
       it('when bad objects are passed over', async () => {
-        const withoutIdResponse = await apiClient
-          .post('/api/admin/articles')
-          .auth(token, { type: 'bearer' })
-          .send(testArticleWithoutId)
-          .expect(400);
-
-        expect(withoutIdResponse.body.error).toContain('id');
-
         const withoutTitleResponse = await apiClient
           .post('/api/admin/articles')
           .auth(token, { type: 'bearer' })
@@ -280,7 +245,7 @@ describe('admin article CRUD /api/admin/articles', () => {
         .auth(fakeToken, { type: 'bearer' })
         .expect(401);
 
-      await apiClient.get('/admin/articles').expect(401);
+      await apiClient.get('/api/admin/articles').expect(401);
     });
 
     it('valid token', async () => {
@@ -303,20 +268,20 @@ describe('admin article CRUD /api/admin/articles', () => {
         .auth(fakeToken, { type: 'bearer' })
         .expect(401);
 
-      await apiClient.put(`/admin/articles/${testArticleId}`).expect(401);
+      await apiClient.put(`/api/admin/articles/${testArticleId}`).expect(401);
     });
 
-    it('valid or no token', async () => {
+    it('valid token', async () => {
       await apiClient
         .put(`/api/admin/articles/${testArticleId}`)
         .auth(token, { type: 'bearer' })
-        .send({ title: '' })
+        .send({ title: 'title' })
         .expect(200);
 
       await apiClient
         .put(`/api/admin/articles/${fakeArticleId}`)
         .auth(token, { type: 'bearer' })
-        .send({ title: '' })
+        .send({ title: 'title' })
         .expect(404);
     });
   });
@@ -349,12 +314,12 @@ describe('admin article CRUD /api/admin/articles', () => {
 
 afterAll(async () => {
   const deleteArticle = await prismaClient.article.deleteMany();
-  deleteArticle.count === 0
+  deleteArticle.count !== 0
     ? console.log('all articles are cleaned')
     : console.error('database error while testing');
 
   const deleteAdminUser = await prismaClient.adminUser.deleteMany();
-  deleteAdminUser.count === 0
+  deleteAdminUser.count !== 0
     ? console.log('all admin users are cleaned')
     : console.error('database error while testing');
 

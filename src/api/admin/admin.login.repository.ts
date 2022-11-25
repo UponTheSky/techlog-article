@@ -6,7 +6,7 @@ export class AdminLoginRepository implements Repository<LoginDTO> {
   dbClient = prismaClient.adminUser;
 
   findUnique = async (
-    userId: LoginDTO['info']['userId'],
+    userId: LoginDTO['userId'],
   ): Promise<AdminUserDTO | null> => {
     return await this.dbClient.findUnique({
       where: {

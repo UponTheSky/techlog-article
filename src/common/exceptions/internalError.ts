@@ -1,11 +1,8 @@
-export class InternalError extends Error {
-  name: string;
-  status: number;
+import { HttpError } from './httpError';
 
+export class InternalError extends HttpError {
   constructor(message: string) {
-    super();
-    this.status = 500;
-    this.name = 'InternalError';
+    super(500, 'InternalError');
     this.message = message;
   }
 }

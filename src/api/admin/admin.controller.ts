@@ -1,6 +1,6 @@
 import { RequestHandler, Router } from 'express';
 
-import { ArticleDTO } from './admin.dto';
+import { ArticleDTO, LoginDTO } from './admin.dto';
 import { Controller } from '../../common/interfaces/controller';
 import { ArticlesServiceProvider } from '../articles/articles.service';
 import { AdminLoginServiceProvider } from './admin.login.service';
@@ -9,7 +9,10 @@ import {
   ARTICLES_DEFAULT_CURRENT_PAGE,
 } from '../../utils/config';
 import { BadRequestError } from '../../common/exceptions';
-import { jwtHandler } from '../../utils/middlewares/jwt.middleware';
+import {
+  jwtHandler,
+  jwtAdminArticlesHandler,
+} from '../../utils/middlewares/jwt.middleware';
 
 export class AdminController implements Controller<ArticleDTO> {
   path: string;
@@ -26,33 +29,24 @@ export class AdminController implements Controller<ArticleDTO> {
   exportRouter(): Router {
     const exportedRouter = Router();
     exportedRouter.use(jwtHandler);
+    exportedRouter.use(jwtAdminArticlesHandler);
     exportedRouter.use(this.path, this.router);
     return exportedRouter;
   }
 
   initRouter(): void {
-    this.router.get('/', this.defaultPageRouter);
+    // CRUD
     this.router.get('/articles', this.getCurrentPage);
     this.router.get('/articles/:articleId', this.getIndividualPage);
-    // this.router.post('/articles', this.)
-    // this.router.put('/articles/:articleId)
-    // this.router.delete('/articles/:articleId)
-    this.router.post('/login', this.login);
-  }
+    this.router.post('/articles', this.createIndividualArticle);
+    this.router.put('/articles/:articleId', this.updateIndividualArticle);
+    this.router.delete('/articles/:articleId', this.deleteIndividualArticle);
 
-  // default page router
-  private defaultPageRouter: RequestHandler = async (
-    request,
-    response,
-    next,
-  ) => {
-    try {
-      response.status(301).redirect(`${request.baseUrl}/articles`);
-      return;
-    } catch (error) {
-      next(error);
-    }
-  };
+    // login
+    this.router.post('/login', this.login);
+
+    // logout(TBA)
+  }
 
   // articles
 
@@ -70,6 +64,7 @@ export class AdminController implements Controller<ArticleDTO> {
       const currentPage =
         Number(request.query.currentPage as string) ||
         ARTICLES_DEFAULT_CURRENT_PAGE;
+
       const currentPageArticlesInfo =
         await this.serviceProvider.getCurrentPageArticlesInfo(
           currentPage,
@@ -102,22 +97,84 @@ export class AdminController implements Controller<ArticleDTO> {
   };
 
   // CREATE
+  private createIndividualArticle: RequestHandler = async (
+    request,
+    response,
+    next,
+  ) => {
+    try {
+      const newArticle = await this.serviceProvider.create(
+        request.body as Partial<ArticleDTO>,
+      );
+
+      response.status(201).json(newArticle);
+    } catch (error) {
+      next(error);
+    }
+  };
 
   // UPDATE
+  private updateIndividualArticle: RequestHandler = async (
+    request,
+    response,
+    next,
+  ) => {
+    try {
+      const articleId = request.params.articleId;
+      const data = request.body as Partial<ArticleDTO>;
+
+      if (!articleId) {
+        throw new BadRequestError(
+          "need to specify the article's id for update",
+        );
+      }
+
+      if (!data) {
+        throw new BadRequestError('no data provided for updating the article');
+      }
+
+      const updatedPage = await this.serviceProvider.update(articleId, data);
+
+      response.json(updatedPage);
+    } catch (error) {
+      next(error);
+    }
+  };
 
   // DELETE
+  private deleteIndividualArticle: RequestHandler = async (
+    request,
+    response,
+    next,
+  ) => {
+    try {
+      const articleId = request.params.articleId;
+
+      if (!articleId) {
+        throw new BadRequestError(
+          "need to specify the article's id for update",
+        );
+      }
+
+      const deletedArticle = await this.serviceProvider.delete(articleId);
+
+      response.status(204).json(deletedArticle);
+    } catch (error) {
+      next(error);
+    }
+  };
 
   // login
   private login: RequestHandler = async (request, response, next) => {
     try {
-      if (!request.decodedToken) {
-        const { info } = request.body;
+      const loginDTO = request.body as LoginDTO;
 
-        const token = await this.loginServiceProvider.validateUserInfo(info);
+      const token = await this.loginServiceProvider.validateUserInfo(loginDTO);
 
-        response.status(301).json({ token }).redirect(request.baseUrl);
-      } else {
-      }
+      response
+        .status(301)
+        .json({ token })
+        .redirect(`${request.baseUrl}/articles`);
     } catch (error) {
       next(error);
     }

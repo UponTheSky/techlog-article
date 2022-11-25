@@ -3,7 +3,10 @@ import { RequestHandler, Router } from 'express';
 import { ArticleDTO } from './articles.dto';
 import { Controller } from '../../common/interfaces/controller';
 import { ArticlesServiceProvider } from './articles.service';
-import { ARTICLES_DEFAULT_CURRENT_PAGE } from '../../utils/config';
+import {
+  ARTICLES_ARTICLES_NUMBER,
+  ARTICLES_DEFAULT_CURRENT_PAGE,
+} from '../../utils/config';
 import { BadRequestError, NotFoundError } from '../../common/exceptions';
 
 export class ArticlesController implements Controller<ArticleDTO> {
@@ -42,7 +45,10 @@ export class ArticlesController implements Controller<ArticleDTO> {
         Number(request.query.currentPage as string) ||
         ARTICLES_DEFAULT_CURRENT_PAGE;
       const currentPageArticlesInfo =
-        await this.serviceProvider.getCurrentPageArticlesInfo(currentPage);
+        await this.serviceProvider.getCurrentPageArticlesInfo(
+          currentPage,
+          ARTICLES_ARTICLES_NUMBER,
+        );
 
       response.json(currentPageArticlesInfo);
     } catch (error) {

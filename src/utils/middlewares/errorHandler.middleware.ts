@@ -1,4 +1,5 @@
 import { RequestHandler, ErrorRequestHandler } from 'express';
+import { HttpError } from '../../common/exceptions/httpError';
 
 import * as logger from '../logger';
 
@@ -12,21 +13,16 @@ export const unknownEndpoint: RequestHandler = (_request, response): void => {
 export const errorHandler: ErrorRequestHandler = (
   error,
   _request,
-  _response,
-  next,
+  response,
+  _next,
 ): void => {
-  if (error instanceof Error) {
-    logger.error(error);
-  }
-
-  // example code
-  /**
-   * if (error.name === 'notFoundError') {
-   *  response.status(404).json({
-   *   error: 'data not found'
-   *  })
-   * }
-   */
-
-  next(error);
+  logger.error(error);
+  error instanceof HttpError
+    ? response.status(error.status).json({
+        error: `${error.name}: ${error.message}`,
+      })
+    : response.status(500).json({
+        error: 'internal server error',
+      });
+  return;
 };

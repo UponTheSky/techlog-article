@@ -10,7 +10,8 @@ export class AdminLoginServiceProvider implements ServiceProvider<TokenDTO> {
   repository = new AdminLoginRepository();
 
   validateUserInfo = async ({
-    info: { userId, password },
+    userId,
+    password,
   }: LoginDTO): Promise<TokenDTO> => {
     const adminUser = await this.repository.findUnique(userId);
     const passwordCorrect =

@@ -15,16 +15,36 @@ const parseTokenFromHeader = (request: Request): string | null => {
 export const jwtHandler: RequestHandler = (request, _response, next) => {
   try {
     const token = parseTokenFromHeader(request);
-    if (token) {
-      const decodedToken = jwt.verify(token, SECRET_KEY) as jwt.JwtPayload;
 
-      if (!decodedToken.userId) {
-        throw new UnAuthorizedError('invalid token');
-      }
+    if (token && !request.url.startsWith('/api/admin/login')) {
+      jwt.verify(token, SECRET_KEY, (err, decodedToken) => {
+        if (!decodedToken || !(decodedToken as jwt.JwtPayload).userId) {
+          throw new UnAuthorizedError(`invalid token: ${err?.message}`);
+        }
 
-      request.decodedToken = decodedToken;
+        request.decodedToken = decodedToken as jwt.JwtPayload;
+      });
     }
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
 
+export const jwtAdminArticlesHandler: RequestHandler = (
+  request,
+  _response,
+  next,
+) => {
+  try {
+    if (
+      request.url.startsWith('/api/admin/articles') &&
+      !request.decodedToken
+    ) {
+      throw new UnAuthorizedError(
+        'You must be authenticated in order to get access to this page',
+      );
+    }
     next();
   } catch (error) {
     next(error);
