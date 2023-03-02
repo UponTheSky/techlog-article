@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "techlog"
+version = "0.1.0"
+description = "a microservice for CRUD operations for the Techlog project"
+authors = ["UponTheSky <sailing.to.orbis@gmail.com>"]
+license = "Proprietary"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = {extras = ["all"], version = "^0.92.0"}
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+pytest = "^7.2.2"
+ruff = "^0.0.254"
+
+[tool.ruff]
+
+[tool.black]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
