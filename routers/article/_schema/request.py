@@ -1,30 +1,25 @@
 from uuid import UUID
-from wsgiref.validate import validator
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from common.article import ArticleBase
+from common.schema.article import ArticleBase as _ArticleBase
 
 
-class CreateArticle(ArticleBase):
-    title: str
+class CreateArticle(_ArticleBase):
+    title: str = Field(
+        description="The article's title should be non-empty when created", min_length=1
+    )
     content: str = ""
-    author_id: UUID
-
-    @validator
-    def title_non_empty(cls, v):
-        if len(v) == 0:
-            raise ValueError("An article's title should be of length greator than 0")
-        return v
+    author_id: UUID = Field(description="The id field of the 'User' class")
 
 
 class ReadArticle(BaseModel):
-    id: UUID
+    id: UUID = Field(description="The id of the article")
 
 
-class UpdateArticle(ArticleBase):
-    id: UUID
+class UpdateArticle(_ArticleBase):
+    id: UUID = Field(description="The id of the article")
 
 
 class DeleteArticle(BaseModel):
-    id: UUID
+    id: UUID = Field(description="The id of the article")

@@ -2,6 +2,10 @@ from uuid import UUID
 
 from fastapi import APIRouter
 
+from ._schema.request import CreateArticle
+
+# from ._schema.response import ArticleResponse
+
 router = APIRouter(
     prefix="/article",
 )
@@ -21,7 +25,7 @@ async def read_article_by_id(id: UUID):
 
 # CREATE
 @router.post("/")
-async def create_article():
+async def create_article(article: CreateArticle):
     pass
 
 

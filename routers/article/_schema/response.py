@@ -1,7 +1,9 @@
 from uuid import UUID
 
-from common.article import ArticleCore
+from pydantic import Field
+
+from common.schema.article import ArticleCore as _ArticleCore
 
 
-class ArticleResponse(ArticleCore):
-    author_id: UUID
+class ArticleResponse(_ArticleCore):
+    author_id: UUID = Field(description="The id field of 'User' class")
