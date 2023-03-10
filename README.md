@@ -13,6 +13,8 @@
   - Backend Framework: FastAPI with [Python typing system](https://docs.python.org/3/library/typing.html), and with [Python](https://www.python.org/) version 3.9
 
   - Database: [MySQL](https://www.mysql.com/) with [SQLAlchemy 2.0](https://docs.sqlalchemy.org/en/20/) and [Alembic](https://alembic.sqlalchemy.org/en/latest/)
+    - for the driver, I'll use [PyMySQL](https://pymysql.readthedocs.io/en/latest/)
+    - **remark**: currently I am only implementing synchronous operations => this should be migrated into async versions in the future
 
   - Python related tools
     - package managing tool: [poetry](https://python-poetry.org/)
