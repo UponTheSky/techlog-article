@@ -1,20 +1,18 @@
 from uuid import UUID, uuid4
 from datetime import datetime
 
-from pydantic import Field
-
-from common.schema.article import ArticleCore as _ArticleCore
+from common.schema.user import UserCore as _UserCore
 
 
-class ArticleResponse(_ArticleCore):
-    author_id: UUID = Field(description="The id field of 'User' class")
+class UserResponse(_UserCore):
+    id: UUID
 
     class Config:
         schema_extra = {
             "example": {
                 "id": str(uuid4()),
-                "title": "How to use FastAPI",
-                "content": "# TL;DR ...",
+                "name": "test_user",
+                "email": "test@test.com",
                 "created_at": str(datetime.now()),
                 "updated_at": str(datetime.now()),
             }

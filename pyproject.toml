@@ -12,6 +12,7 @@ fastapi = {extras = ["all"], version = "^0.92.0"}
 sqlalchemy = "^2.0.4"
 pymysql = "^1.0.2"
 alembic = "^1.9.4"
+python-multipart = "^0.0.6"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"

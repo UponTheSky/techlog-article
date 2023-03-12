@@ -1,3 +1,3 @@
-from ._article import ArticleBase, ArticleCore, Article
+from ._article import ArticleCore, Article
 
-__all__ = ["ArticleBase", "ArticleCore", "Article"]
+__all__ = ["ArticleCore", "Article"]

@@ -1,28 +1,21 @@
 from typing import Optional
-import re
 from uuid import UUID
 from datetime import datetime
 
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, Field
 
 
-class UserBase(BaseModel):
-    name: Optional[str]
-    email: Optional[str]
-
-
-class User(BaseModel):
-    id: UUID
-    name: str = Field(min_length=1)
+class UserCore(BaseModel):
+    name: str
     email: str
 
     created_at: datetime
     updated_at: Optional[datetime]
     deleted_at: Optional[datetime]
 
-    # TODO: move it to the router schemas
-    @validator("email")
-    def email_is_valid(cls, v):
-        if not re.match(r"^[\w\d\.]+@[\w\d\.]+\.[\w]+$", v):
-            raise ValueError("email should be valid")
-        return v
+
+class User(UserCore):
+    id: UUID = Field(
+        description="The primary key that is automatically generated from the DB"
+    )
+    password: str
