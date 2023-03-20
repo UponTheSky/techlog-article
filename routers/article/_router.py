@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Query, Path, Body, status
 
 from common.consts import MAX_ARTICLE_LIMIT
+from common.dependencies.oauth2 import CurrentUserDependency
 
 from ._schema.request import CreateArticle, UpdateArticle
 from ._schema.response import ArticleResponse
@@ -36,6 +37,7 @@ async def read_article_by_id(id: UUID = Path(...)) -> ArticleResponse:
 # CREATE
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_article(
+    user: CurrentUserDependency,
     article: CreateArticle = Body(
         description="data required for creating an article item"
     ),
@@ -46,7 +48,9 @@ async def create_article(
 # UPDATE
 @router.patch("/{id}", status_code=status.HTTP_200_OK)
 async def update_article(
-    id: UUID = Path(...),
+    *,
+    id: UUID = Path(),
+    user: CurrentUserDependency,
     data: UpdateArticle = Body(
         description="data required for updating an article item"
     ),
@@ -56,5 +60,9 @@ async def update_article(
 
 # DELETE
 @router.delete("/{id}", status_code=status.HTTP_200_OK)
-async def delete_article(id: UUID = Path(...)) -> ArticleResponse:
+async def delete_article(
+    *,
+    id: UUID = Path(),
+    user: CurrentUserDependency,
+) -> ArticleResponse:
     raise NotImplementedError()

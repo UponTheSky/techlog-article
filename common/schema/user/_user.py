@@ -18,4 +18,3 @@ class User(UserCore):
     id: UUID = Field(
         description="The primary key that is automatically generated from the DB"
     )
-    password: str
