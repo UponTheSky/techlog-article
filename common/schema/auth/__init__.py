@@ -1,3 +1,3 @@
-from ._auth import UserAuth
+from ._auth import JWTToken, JWTPayload
 
-__all__ = ["UserAuth"]
+__all__ = ["JWTToken", "JWTPayload"]
