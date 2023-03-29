@@ -10,7 +10,6 @@ from ._schema.response import ArticleResponse
 
 from routers.tags import Tags
 
-# TODO: add dependencies
 router = APIRouter(
     prefix="/article",
     tags=[Tags.article],
