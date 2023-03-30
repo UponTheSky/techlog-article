@@ -6,8 +6,8 @@ from fastapi.encoders import jsonable_encoder
 from passlib.context import CryptContext
 from jose import jwt
 
-from lib.config import config
-from lib.utils.datetime import get_now_utc_timestamp
+from lib.config import config, auth_config
+from common.utils import get_now_utc_timestamp
 from common.schema.user import User, UserInDB
 from common.schema.auth import JWTToken, JWTPayload
 
@@ -15,7 +15,7 @@ from common.schema.auth import JWTToken, JWTPayload
 class AuthService:
     def __init__(self):
         self._password_context = CryptContext(
-            schemes=[config.ALGORITHM], deprecated="auto"
+            schemes=[auth_config.PASSWORD_HASH_ALGORITHM], deprecated="auto"
         )
 
     def authenticate_user(self, form_data: OAuth2PasswordRequestForm) -> Optional[User]:
@@ -48,7 +48,7 @@ class AuthService:
 
     def create_access_token(self, user_id: UUID, is_admin: bool = False) -> JWTToken:
         payload = JWTPayload(
-            exp=get_now_utc_timestamp() + config.ACCESS_TOKEN_EXPRIRES_IN,
+            exp=get_now_utc_timestamp() + auth_config.ACCESS_TOKEN_EXPRIRES_IN,
             sub=user_id,
             admin=is_admin,
         )
@@ -56,7 +56,7 @@ class AuthService:
         return JWTToken(
             access_token=jwt.encode(
                 jsonable_encoder(payload),
-                config.SECRET_KEY,
+                auth_config.JWT_SECRET_KEY,
                 algorithm=config.JWT_ENCODE_ALGORITHM,
             ),
             token_type="bearer",
