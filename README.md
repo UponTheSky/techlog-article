@@ -38,4 +38,11 @@
 - Redis Cache
 - Kafka
 
+## File Structure
+- check [this stackoverflow page](https://stackoverflow.com/questions/193161/what-is-the-best-project-structure-for-a-python-application)
+- many ideas have been around, and there is no "correct" answer, but I think we would better off following the corrent trend dealing with pyproject.toml
+- so this project's file structure is largely based upon:
+  - the official tutorial of [how to package a Python project](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
+  - [pypa's sample project](https://github.com/pypa/sampleproject)
+
 ## TBA
