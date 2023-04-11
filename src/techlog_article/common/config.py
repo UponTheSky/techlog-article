@@ -15,7 +15,7 @@ class BaseConfig(BaseSettings):
 class AuthConfig(BaseSettings):
     JWT_ENCODE_ALGORITHM: str
     PASSWORD_HASH_ALGORITHM: str
-    JWT_SECRET: str
+    JWT_SECRET_KEY: str
     ACCESS_TOKEN_EXPRIRES_IN: int
 
 
