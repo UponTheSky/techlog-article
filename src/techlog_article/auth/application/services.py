@@ -12,6 +12,8 @@ from common.utils import get_now_utc_timestamp, ServiceMessage
 from common.schema.user import User, UserInDB
 from common.schema.auth import JWTToken, JWTPayload
 
+from .port.in_.login_dto import LoginDTO
+
 
 # TODO: move it to common
 class AuthError(Exception):
@@ -30,10 +32,12 @@ class LoginAuthService:
         self._token_helper = token_helper
 
     def login(
-        self, *, username: str, password: str
+        self, *, login_dto: LoginDTO
     ) -> ServiceMessage[Union[JWTToken, AuthError]]:
         try:
-            user = self._verify_user(username=username, password=password)
+            user = self._verify_user(
+                username=login_dto.username, password=login_dto.password
+            )
 
             # TODO: define a constant somewhere else of the username of the admin
             ADMIN_USERNAME = "heyya"
