@@ -12,7 +12,7 @@ from common.utils import get_now_utc_timestamp, ServiceMessage
 from common.schema.user import User, UserInDB
 from common.schema.auth import JWTToken, JWTPayload
 
-from .port.in_.login_dto import LoginDTO
+from .port.in_.login import LoginPort, LoginDTO
 
 
 # TODO: move it to common
@@ -23,7 +23,7 @@ class AuthError(Exception):
         self.code = code
 
 
-class LoginAuthService:
+class LoginAuthService(LoginPort):
     def __init__(self, *, token_helper: Annotated["JWTTokenHelper", Depends()]):
         # TODO: change "JWTTokenHelper" from a string to an actually imported module
         self._password_context = CryptContext(
