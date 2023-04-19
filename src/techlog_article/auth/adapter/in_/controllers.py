@@ -6,10 +6,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from common.schema.auth import JWTToken
 from common.dependencies.oauth2 import CurrentUserDependency
-from common.schema.user import User
+from common.tags import Tags
+from common.utils import ServiceMessageTitle
 
-from routers.tags import Tags
-from internal.auth import AuthService
+from application.port.in_.login import LoginPort, LoginDTO
+from application.port.in_.logout import LogoutPort
+from application.services import LoginService
+from techlog_article.auth.application.services import LogoutService
 
 router = APIRouter(
     prefix="/auth",
@@ -18,35 +21,42 @@ router = APIRouter(
 )
 
 
-# LOGIN
-@router.post("/login", status_code=status.HTTP_200_OK)
+@router.post("/login", status_code=status.HTTP_201_CREATED)
 async def login(
     *,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    auth_service: Annotated[AuthService, Depends()],
+    login_service: Annotated[LoginPort, Depends(LoginService)],
 ) -> JWTToken:
-    verified_user = auth_service.authenticate_user(form_data)
-    if not verified_user:
+    service_message = login_service.login(
+        login_dto=LoginDTO(username=form_data.username, password=form_data.password)
+    )
+    if service_message.title == ServiceMessageTitle.ERROR:
         raise HTTPException(
-            status_code=401,
-            detail="Unauthorized: Incorrect username or password",
+            status_code=service_message.code,
+            detail=service_message.payload,
         )
 
-    return auth_service.create_access_token(verified_user.id)
+    return login_service
 
 
-# LOGOUT
-@router.post("/logout/{id}", status_code=status.HTTP_200_OK)
+@router.post("/logout/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
     id: UUID,
     current_user: CurrentUserDependency,
-    auth_service: Annotated[AuthService, Depends()],
-) -> User:
+    auth_service: Annotated[LogoutPort, Depends(LogoutService)],
+) -> None:
     if current_user.id != id:
         raise HTTPException(
-            status_code=403,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail=f"Permission denied: \
                 {current_user.id} requested for a different user",
         )
 
-    return auth_service.logout_user(id, current_user)
+    service_message = auth_service.logout(id, current_user)
+
+    if service_message.title == ServiceMessageTitle.ERROR:
+        raise HTTPException(
+            status_code=service_message.code, detail=service_message.payload
+        )
+
+    return None

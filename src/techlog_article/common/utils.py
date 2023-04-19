@@ -1,6 +1,8 @@
-from typing import Literal, TypeVar, Generic
+from typing import TypeVar
 from datetime import datetime, timezone
+from enum import Enum
 
+from fastapi import status as HTTPStatus
 from pydantic.dataclasses import dataclass
 
 
@@ -11,7 +13,13 @@ def get_now_utc_timestamp() -> int:
 T = TypeVar("T")
 
 
+class ServiceMessageTitle(str, Enum):
+    SUCCESS = "SUCCESS"
+    ERROR = "ERROR"
+
+
 @dataclass
-class ServiceMessage(Generic[T]):
-    title: Literal["success", "error"]
+class ServiceMessage:
+    title: ServiceMessageTitle
+    code: HTTPStatus
     payload: T
