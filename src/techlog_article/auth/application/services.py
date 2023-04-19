@@ -2,7 +2,7 @@ from typing import Annotated, Optional, Union
 from uuid import UUID
 from datetime import datetime
 
-from fastapi import Depends, status as http_status_code
+from fastapi import Depends, status as HTTPStatus
 from fastapi.encoders import jsonable_encoder
 from passlib.context import CryptContext
 from jose import jwt
@@ -11,19 +11,13 @@ from common.config import auth_config
 from common.utils import get_now_utc_timestamp, ServiceMessage
 from common.schema.user import User, UserInDB
 from common.schema.auth import JWTToken, JWTPayload
+from common.exceptions import AuthError
 
 from .port.in_.login import LoginPort, LoginDTO
+from .port.in_.logout import LogoutPort
 
 
-# TODO: move it to common
-class AuthError(Exception):
-    def __init__(self, *, message: str, code: http_status_code):
-        super.__init__(message)
-        self.message = message
-        self.code = code
-
-
-class LoginAuthService(LoginPort):
+class LoginService(LoginPort):
     def __init__(self, *, token_helper: Annotated["JWTTokenHelper", Depends()]):
         # TODO: change "JWTTokenHelper" from a string to an actually imported module
         self._password_context = CryptContext(
@@ -43,12 +37,13 @@ class LoginAuthService(LoginPort):
             ADMIN_USERNAME = "heyya"
             return ServiceMessage(
                 title="success",
+                code=HTTPStatus.HTTP_200_OK,
                 message=self._issue_access_token(
                     user_id=user.id, is_admin=user.username == ADMIN_USERNAME
                 ),
             )
         except AuthError as error:
-            return ServiceMessage(title="error", message=error)
+            return ServiceMessage(title="error", code=error.code, message=error.message)
 
     # TODO: determine whether or not to use OAuth2PasswordRequestForm
     def _verify_user(self, *, username: str, password: str) -> User:
@@ -56,7 +51,7 @@ class LoginAuthService(LoginPort):
         if not user_in_db:
             raise AuthError(
                 message=f"User with username {username} doesn't exist in the DB",
-                code=http_status_code.HTTP_404_NOT_FOUND,
+                code=HTTPStatus.HTTP_404_NOT_FOUND,
             )
 
         if not self._verify_password(
@@ -64,7 +59,7 @@ class LoginAuthService(LoginPort):
         ):
             raise AuthError(
                 message="The provided password doesn't match with the current password",
-                code=http_status_code.HTTP_400_BAD_REQUEST,
+                code=HTTPStatus.HTTP_400_BAD_REQUEST,
             )
 
         return User(**(user_in_db.dict()))
@@ -112,19 +107,22 @@ class AccessAuthService:
 
 
 # TODO: SignIn & SignOut => User domain
-class LogoutAuthService:
+class LogoutService(LogoutPort):
     def __init__(self, *, token_helper: Annotated["JWTTokenHelper", Depends()]):
         self._token_helper = token_helper
 
-    def logout(self, *, user_id: UUID) -> ServiceMessage[Union[None, AuthError]]:
+    def logout(self, *, user_id: UUID) -> ServiceMessage[Optional[AuthError]]:
         if not self._token_helper.deactivate_token(user_id=user_id):
             return ServiceMessage(
                 title="error",
+                code=HTTPStatus.HTTP_500_INTERNAL_SERVER_ERROR,
                 message="internel server error: \
                     token deactivation has been unsuccessful",
             )
 
-        return ServiceMessage(title="error", message=None)
+        return ServiceMessage(
+            title="error", code=HTTPStatus.HTTP_204_NO_CONTENT, message=None
+        )
 
 
 # TODO: move to common
