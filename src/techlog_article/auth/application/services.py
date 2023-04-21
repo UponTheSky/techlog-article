@@ -1,16 +1,14 @@
-from typing import Annotated, Optional, Union
+from typing import Optional, Union
 from uuid import UUID
 
-from fastapi import Depends, status as HTTPStatus
-from fastapi.encoders import jsonable_encoder
+from fastapi import status as HTTPStatus
 from passlib.context import CryptContext
-from jose import jwt
 
 from common.config import auth_config
 from common.utils.datetime import get_now_utc_timestamp
 from common.utils.message import ServiceMessage
+from common.utils.jwt import create_token as create_jwt_token, JWTToken
 from common.schema.user import User
-from common.schema.auth import JWTToken, JWTPayload
 from common.exceptions import AuthError
 
 from .port.in_.login import LoginPort, LoginDTO
@@ -25,15 +23,12 @@ class LoginService(LoginPort):
         *,
         read_user_port: ReadUserPort,
         update_auth_port: UpdateAuthPort,
-        token_helper: Annotated["JWTTokenHelper", Depends()],
     ):
-        # TODO: change "JWTTokenHelper" from a string to an actually imported module
         self._read_user_port = read_user_port
         self._update_auth_port = update_auth_port
         self._password_context = CryptContext(
             schemes=[auth_config.PASSWORD_HASH_ALGORITHM], deprecated="auto"
         )
-        self._token_helper = token_helper
 
     def login(
         self, *, login_dto: LoginDTO
@@ -80,7 +75,7 @@ class LoginService(LoginPort):
         return self._password_context.verify(password, hashed_password)
 
     def _issue_access_token(self, *, user_id: UUID, is_admin: bool = False) -> JWTToken:
-        return self._token_helper.create_token(
+        return create_jwt_token(
             user_id=user_id,
             expiry=get_now_utc_timestamp() + auth_config.ACCESS_TOKEN_EXPRIRES_IN,
             is_admin=is_admin,
@@ -93,9 +88,6 @@ class LoginService(LoginPort):
 
 # TODO: move to dependencies
 class AccessAuthService:
-    def __init__(self, *, token_helper: Annotated["JWTTokenHelper", Depends()]):
-        self._token_helper = token_helper
-
     def authenticate_user_access_token(self):
         ...
         # TODO: cases
@@ -106,11 +98,8 @@ class AccessAuthService:
 
 # TODO: SignIn & SignOut => User domain
 class LogoutService(LogoutPort):
-    def __init__(self, *, token_helper: Annotated["JWTTokenHelper", Depends()]):
-        self._token_helper = token_helper
-
     def logout(self, *, user_id: UUID) -> ServiceMessage[Optional[AuthError]]:
-        if not self._token_helper.deactivate_token(user_id=user_id):
+        if not self._deactivate_token(user_id=user_id):
             return ServiceMessage(
                 title="error",
                 code=HTTPStatus.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -122,31 +111,6 @@ class LogoutService(LogoutPort):
             title="error", code=HTTPStatus.HTTP_204_NO_CONTENT, message=None
         )
 
-
-# TODO: move to common
-class JWTTokenHelper:
-    def __init__(self):
-        ...
-
-    def create_token(
-        self, *, user_id: UUID, expiry: int, is_admin: bool = False
-    ) -> JWTToken:
-        payload = JWTPayload(
-            exp=expiry,
-            sub=user_id,
-            admin=is_admin,
-        )
-
-        return JWTToken(
-            access_token=jwt.encode(
-                jsonable_encoder(payload),
-                auth_config.JWT_SECRET_KEY,
-                algorithm=auth_config.JWT_ENCODE_ALGORITHM,
-            ),
-            token_type="bearer",
-        )
-
-    # TODO: implement deactivate_access_token
-    # go straight to the DB and delete the token
-    def deactivate_token(self, *, user_id: UUID) -> bool:
+    def _deactivate_token(self, user_id: UUID) -> bool:
+        # TODO: implement a redis cache structure
         ...
