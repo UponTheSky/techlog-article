@@ -1,6 +1,5 @@
 from typing import Annotated, Optional, Union
 from uuid import UUID
-from datetime import datetime
 
 from fastapi import Depends, status as HTTPStatus
 from fastapi.encoders import jsonable_encoder
@@ -8,22 +7,29 @@ from passlib.context import CryptContext
 from jose import jwt
 
 from common.config import auth_config
-from common.utils import get_now_utc_timestamp, ServiceMessage
-from common.schema.user import User, UserInDB
+from common.utils.datetime import get_now_utc_timestamp
+from common.utils.message import ServiceMessage
+from common.schema.user import User
 from common.schema.auth import JWTToken, JWTPayload
 from common.exceptions import AuthError
 
 from .port.in_.login import LoginPort, LoginDTO
 from .port.in_.logout import LogoutPort
+from .port.out.read_user_port import ReadUserPort
+from .port.out.update_auth_port import UpdateAuthPort, UpdateAuthDTO
 
 
 class LoginService(LoginPort):
     def __init__(
         self,
         *,
+        read_user_port: ReadUserPort,
+        update_auth_port: UpdateAuthPort,
         token_helper: Annotated["JWTTokenHelper", Depends()],
     ):
         # TODO: change "JWTTokenHelper" from a string to an actually imported module
+        self._read_user_port = read_user_port
+        self._update_auth_port = update_auth_port
         self._password_context = CryptContext(
             schemes=[auth_config.PASSWORD_HASH_ALGORITHM], deprecated="auto"
         )
@@ -36,51 +42,39 @@ class LoginService(LoginPort):
             user = self._verify_user(
                 username=login_dto.username, password=login_dto.password
             )
-
             # TODO: define a constant somewhere else of the username of the admin
             ADMIN_USERNAME = "heyya"
+            access_token = self._issue_access_token(
+                user_id=user.id, is_admin=user.username == ADMIN_USERNAME
+            )
+
+            self._update_auth_port.update_auth(
+                dto=UpdateAuthDTO(user_id=user.id, access_token=access_token)
+            )
+
             return ServiceMessage(
-                title="success",
-                code=HTTPStatus.HTTP_200_OK,
-                message=self._issue_access_token(
-                    user_id=user.id, is_admin=user.username == ADMIN_USERNAME
-                ),
+                title="success", code=HTTPStatus.HTTP_200_OK, message=access_token
             )
         except AuthError as error:
             return ServiceMessage(title="error", code=error.code, message=error.message)
 
-    # TODO: determine whether or not to use OAuth2PasswordRequestForm
     def _verify_user(self, *, username: str, password: str) -> User:
-        user_in_db = self._verify_username(username)
-        if not user_in_db:
+        user = self._read_user_port.read_user(username=username)
+        if not user:
             raise AuthError(
                 message=f"User with username {username} doesn't exist in the DB",
                 code=HTTPStatus.HTTP_404_NOT_FOUND,
             )
 
         if not self._verify_password(
-            password=password, hashed_password=user_in_db.hashed_password
+            password=password, hashed_password=user.hashed_password
         ):
             raise AuthError(
                 message="The provided password doesn't match with the current password",
                 code=HTTPStatus.HTTP_400_BAD_REQUEST,
             )
 
-        return User(**(user_in_db.dict()))
-
-    def _verify_username(self, username) -> Optional[User]:
-        # TODO: change this part after implementing the persistence adapter
-        # fetch the corresponding entity from the DB
-        from uuid import uuid4
-
-        user_in_db: UserInDB = UserInDB(
-            username="fake_user",
-            email="test@test.com",
-            created_at=datetime.now(),
-            id=uuid4(),
-            hashed_password="12345",
-        )
-        return user_in_db
+        return user
 
     def _verify_password(self, *, password: str, hashed_password: str) -> bool:
         return self._password_context.verify(password, hashed_password)

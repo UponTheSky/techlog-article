@@ -18,6 +18,7 @@ class User(Base):
     # fields
     # TODO: add index=True attribute when necessary
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    username: Mapped[str] = mapped_column(String(32), unique=True)
 
     # relationship
     auth: Mapped["Auth"] = relationship(back_populates="user")
