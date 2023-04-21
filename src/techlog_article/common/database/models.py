@@ -12,20 +12,21 @@ class Base(DeclarativeBase):
     deleted_at: Mapped[Optional[datetime]] = mapped_column(default=None)
 
 
-class DBUser(Base):
+class User(Base):
     __tablename__ = "user"
 
     # fields
+    # TODO: add index=True attribute when necessary
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
 
     # relationship
-    auth: Mapped["DBAuth"] = relationship(back_populates="user")
+    auth: Mapped["Auth"] = relationship(back_populates="user")
 
     def __repr__(self) -> str:
         return f"DBUser id={self.id!r}"
 
 
-class DBAuth(Base):
+class Auth(Base):
     """
     Remark: since you can't directly store a UUID data into a MySQL database,
     you have to convert it to other data formats
@@ -39,7 +40,7 @@ class DBAuth(Base):
     access_token: Mapped[Optional[str]] = mapped_column(String(255))
 
     # relationship
-    user: Mapped[DBUser] = relationship(back_populates="auth")
+    user: Mapped[User] = relationship(back_populates="auth")
 
     def __repr__(self) -> str:
         return f"DBAuth id={self.id!r}"

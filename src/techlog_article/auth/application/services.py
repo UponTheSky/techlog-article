@@ -18,7 +18,11 @@ from .port.in_.logout import LogoutPort
 
 
 class LoginService(LoginPort):
-    def __init__(self, *, token_helper: Annotated["JWTTokenHelper", Depends()]):
+    def __init__(
+        self,
+        *,
+        token_helper: Annotated["JWTTokenHelper", Depends()],
+    ):
         # TODO: change "JWTTokenHelper" from a string to an actually imported module
         self._password_context = CryptContext(
             schemes=[auth_config.PASSWORD_HASH_ALGORITHM], deprecated="auto"
