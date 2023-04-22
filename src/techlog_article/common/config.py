@@ -19,6 +19,14 @@ class AuthConfig(BaseSettings):
     ACCESS_TOKEN_EXPRIRES_IN: int
 
 
+class LocalConfig(BaseConfig):
+    ENV = "local"
+    DEBUG = True
+    APP_HOST = "0.0.0.0"
+    APP_PORT = 8000
+    DB_URL = "mysql+pymysql://root:1Q2w3e4r!@localhost/techlog-artice"
+
+
 class DevelopmentConfig(BaseConfig):
     ENV = "development"
     DEBUG = True
