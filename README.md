@@ -12,9 +12,10 @@
 - Techstacks are the followings(to be added)
   - Backend Framework: FastAPI with [Python typing system](https://docs.python.org/3/library/typing.html), and with [Python](https://www.python.org/) version 3.9
 
-  - Database: [MySQL](https://www.mysql.com/) with [SQLAlchemy 2.0](https://docs.sqlalchemy.org/en/20/) and [Alembic](https://alembic.sqlalchemy.org/en/latest/)
-    - for the driver, I'll use [PyMySQL](https://pymysql.readthedocs.io/en/latest/)
-    - **remark**: currently I am only implementing synchronous operations => this should be migrated into async versions in the future
+  - Database: [PostgreSQL](https://www.postgresql.org/) with [SQLAlchemy 2.0](https://docs.sqlalchemy.org/en/20/)
+    - for the driver adapter, I'll use  [asyncpg]((https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.asyncpg))
+    - for database migration, we'll use [alembic 1.10.3](https://alembic.sqlalchemy.org/en/latest/)
+    - why choose alembic over other ORM-agonostic tools such as flyway or liquibase?: see [this link on how we usually organize a microservice and its DB](https://www.prisma.io/dataguide/managing-databases/microservices-vs-monoliths#how-do-microservices-affect-database-architecture)
 
   - Python related tools
     - package managing tool: [poetry](https://python-poetry.org/)

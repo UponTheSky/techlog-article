@@ -24,7 +24,7 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     APP_HOST = "0.0.0.0"
     APP_PORT = 8000
-    DB_URL = ""
+    DB_URL = "postgresql+asyncpg://db_admin:1Q2w3e4r!@localhost:5432/techlog_article"
 
 
 def get_config() -> Union[BaseConfig, DevelopmentConfig]:

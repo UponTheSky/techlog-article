@@ -28,7 +28,7 @@ class UserPersistenceAdapter(ReadUserPort):
             result = self._user_repository.read_by_username(username)
 
         elif id:
-            result = self._user_repository.read_by_id(str(id))
+            result = self._user_repository.read_by_id(id)
 
         if result:
             return User.from_orm(models.User)
@@ -42,7 +42,7 @@ class AuthPersistenceAdapter(UpdateAuthPort):
         self._auth_repository = auth_repository
 
     def update_auth(self, *, dto: UpdateAuthDTO) -> None:
-        auth_in_db = self._auth_repository.read_by_user_id(str(dto.user_id))
+        auth_in_db = self._auth_repository.read_by_user_id(dto.user_id)
         self._auth_repository.update(
             orm=auth_in_db, dao=dto.dict(exclude={"id", "user_id"})
         )

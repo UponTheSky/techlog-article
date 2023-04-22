@@ -1,13 +1,14 @@
 from typing import Optional
 from datetime import datetime
+from uuid import UUID
 
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
     # default fields for every orm object
-    created_at: Mapped[datetime]
+    created_at: Mapped[datetime] = mapped_column(server_defuault=func.now())
     updated_at: Mapped[Optional[datetime]] = mapped_column(default=None)
     deleted_at: Mapped[Optional[datetime]] = mapped_column(default=None)
 
@@ -16,7 +17,8 @@ class DBUser(Base):
     __tablename__ = "user"
 
     # fields
-    id: Mapped[str] = mapped_column(String(32), primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(index=True)
 
     # relationship
     auth: Mapped["DBAuth"] = relationship(back_populates="user")
@@ -36,7 +38,7 @@ class DBAuth(Base):
     # fields
     id: Mapped[str] = mapped_column(String(32), primary_key=True)
     user_id: Mapped[str] = mapped_column(ForeignKey("user.id"))
-    access_token: Mapped[Optional[str]] = mapped_column(String(255))
+    access_token: Mapped[str] = mapped_column(String(255), default="")
 
     # relationship
     user: Mapped[DBUser] = relationship(back_populates="auth")
