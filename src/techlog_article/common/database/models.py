@@ -1,5 +1,6 @@
 from typing import Optional
 from datetime import datetime
+from uuid import UUID
 
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -17,8 +18,8 @@ class User(Base):
 
     # fields
     # TODO: add index=True attribute when necessary
-    id: Mapped[str] = mapped_column(String(32), primary_key=True)
-    username: Mapped[str] = mapped_column(String(32), unique=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(16), unique=True)
 
     # relationship
     auth: Mapped["Auth"] = relationship(back_populates="user")
@@ -36,8 +37,8 @@ class Auth(Base):
     __tablename__ = "auth"
 
     # fields
-    id: Mapped[str] = mapped_column(String(32), primary_key=True)
-    user_id: Mapped[str] = mapped_column(ForeignKey("user.id"))
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
     access_token: Mapped[Optional[str]] = mapped_column(String(255))
 
     # relationship

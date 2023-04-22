@@ -1,20 +1,21 @@
 from typing import Optional, final
+from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from common.database import models
 
 
 @final
 class UserRepository:
-    def __init__(self, *, db_session: Session):
+    def __init__(self, *, db_session: AsyncSession):
         self._db_session = db_session
 
-    def read_by_username(self, username: str) -> Optional[models.User]:
+    async def read_by_username(self, username: str) -> Optional[models.User]:
         stmt = select(models.User).where(models.User.username == username)
-        return self._db_session.scalars(stmt).one_or_none()
+        return (await self._db_session.scalars(stmt)).one_or_none()
 
-    def read_by_id(self, id: str) -> Optional[models.User]:
+    async def read_by_id(self, id: UUID) -> Optional[models.User]:
         stmt = select(models.User).where(models.User.id == id)
-        return self._db_session.scalars(stmt).one_or_none()
+        return (await self._db_session.scalars(stmt)).one_or_none()
