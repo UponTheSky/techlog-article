@@ -1,13 +1,10 @@
 from typing import Optional
 from abc import ABC, abstractmethod
-from uuid import UUID
 
-from domain.user import User
+from user.domain.user import User
 
 
 class ReadUserPort(ABC):
     @abstractmethod
-    def read_user(
-        self, *, username: Optional[str], id: Optional[UUID]
-    ) -> Optional[User]:
+    async def read_user_by_name(self, *, username: str) -> Optional[User]:
         ...

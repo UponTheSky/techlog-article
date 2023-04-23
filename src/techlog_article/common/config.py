@@ -17,6 +17,7 @@ class AuthConfig(BaseSettings):
     PASSWORD_HASH_ALGORITHM: str
     JWT_SECRET_KEY: str
     ACCESS_TOKEN_EXPRIRES_IN: int
+    ADMIN_USERNAME: str
 
 
 class DevelopmentConfig(BaseConfig):

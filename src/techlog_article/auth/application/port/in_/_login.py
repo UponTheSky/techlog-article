@@ -1,9 +1,7 @@
-from typing import Union
 from abc import ABC, abstractmethod
 
 from pydantic import BaseModel, Field
 
-from common.utils.message import ServiceMessage
 from common.utils.jwt import JWTToken
 
 
@@ -14,5 +12,5 @@ class LoginDTO(BaseModel):
 
 class LoginPort(ABC):
     @abstractmethod
-    def login(self, *, login_dto: LoginDTO) -> ServiceMessage[Union[JWTToken, str]]:
+    async def login(self, *, login_dto: LoginDTO) -> JWTToken:
         ...

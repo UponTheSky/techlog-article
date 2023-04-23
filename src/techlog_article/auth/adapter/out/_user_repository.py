@@ -1,5 +1,4 @@
 from typing import Optional, final
-from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,8 +13,4 @@ class UserRepository:
 
     async def read_by_username(self, username: str) -> Optional[models.User]:
         stmt = select(models.User).where(models.User.username == username)
-        return (await self._db_session.scalars(stmt)).one_or_none()
-
-    async def read_by_id(self, id: UUID) -> Optional[models.User]:
-        stmt = select(models.User).where(models.User.id == id)
         return (await self._db_session.scalars(stmt)).one_or_none()
