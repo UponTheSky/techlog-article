@@ -8,13 +8,10 @@ from common.config import auth_config
 from common.utils.datetime import get_now_utc_timestamp
 from common.utils.message import ServiceMessage
 from common.utils.jwt import create_token as create_jwt_token, JWTToken
-from common.schema.user import User
 from common.exceptions import AuthError
 
-from .port.in_.login import LoginPort, LoginDTO
-from .port.in_.logout import LogoutPort
-from .port.out.read_user_port import ReadUserPort
-from .port.out.update_auth_port import UpdateAuthPort, UpdateAuthDTO
+from .port.in_ import LoginDTO, LoginPort, LogoutPort
+from .port.out import ReadUserPort, UpdateAuthDTO, UpdateAuthPort
 
 
 class LoginService(LoginPort):
@@ -53,7 +50,7 @@ class LoginService(LoginPort):
         except AuthError as error:
             return ServiceMessage(title="error", code=error.code, message=error.message)
 
-    def _verify_user(self, *, username: str, password: str) -> User:
+    def _verify_user(self, *, username: str, password: str):
         user = self._read_user_port.read_user(username=username)
         if not user:
             raise AuthError(

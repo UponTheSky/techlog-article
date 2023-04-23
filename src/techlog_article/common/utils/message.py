@@ -1,11 +1,11 @@
-from typing import TypeVar
+from typing import TypeVar, Generic
 from enum import Enum
 
 from fastapi import status as HTTPStatus
 from pydantic.dataclasses import dataclass
 
 
-T = TypeVar("T")
+Payload = TypeVar("Payload")
 
 
 class ServiceMessageTitle(str, Enum):
@@ -14,7 +14,7 @@ class ServiceMessageTitle(str, Enum):
 
 
 @dataclass
-class ServiceMessage:
+class ServiceMessage(Generic[Payload]):
     title: ServiceMessageTitle
     code: HTTPStatus
-    payload: T
+    payload: Payload
