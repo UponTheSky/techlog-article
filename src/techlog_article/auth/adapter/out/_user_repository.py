@@ -1,14 +1,13 @@
 from typing import Optional, final
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from common.database import models
+from common.database import models, CurrentDBSessionDependency
 
 
 @final
 class UserRepository:
-    def __init__(self, *, db_session: AsyncSession):
+    def __init__(self, *, db_session: CurrentDBSessionDependency):
         self._db_session = db_session
 
     async def read_by_username(self, username: str) -> Optional[models.User]:

@@ -1,11 +1,12 @@
-from typing import Callable, Awaitable, Optional
+from typing import Callable, Awaitable, Optional, Annotated
 from contextvars import ContextVar
 
-from fastapi import Request, Response, status as HTTPStatus
+from fastapi import Request, Response, status as HTTPStatus, Depends
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_scoped_session,
     async_sessionmaker,
+    AsyncSession,
 )
 
 from ..config import config
@@ -34,6 +35,13 @@ AsyncScopedSession = async_scoped_session(
     session_factory=async_sessionmaker(bind=engine, autoflush=False, autocommit=False),
     scopefunc=get_db_session_context,
 )
+
+
+def get_current_session() -> AsyncSession:
+    return AsyncScopedSession()
+
+
+CurrentDBSessionDependency = Annotated[AsyncSession, Depends(get_current_session)]
 
 
 async def db_session_middleware(

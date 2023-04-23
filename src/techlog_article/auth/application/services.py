@@ -2,16 +2,77 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import HTTPException, status as HTTPStatus, Depends
+from fastapi.security import OAuth2PasswordBearer
 
 from common.config import auth_config
 from common.utils.datetime import get_now_utc_timestamp
-from common.utils.jwt import create_token as create_jwt_token, JWTToken
+from common.utils.jwt import (
+    create_token as create_jwt_token,
+    JWTToken,
+    JWTError,
+    decode_token as decode_jwt_token,
+)
 from common.utils.password import verify_password
 
 from .port.in_ import LoginDTO, LoginPort, LogoutPort
-from .port.out import ReadUserPort, UpdateAuthDTO, UpdateAuthPort
+from .port.out import ReadUserPort, UpdateAuthDTO, UpdateAuthPort, ReadAuthPort
 
 from adapter.out.persistences import UserPersistenceAdapter, AuthPersistenceAdapter
+
+
+class AuthTokenCheckService:
+    def __init__(
+        self, *, read_auth_port: Annotated[ReadAuthPort, AuthPersistenceAdapter]
+    ):
+        self._read_auth_port = read_auth_port
+
+    async def __call__(
+        self,
+        token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="auth/login"))],
+    ) -> UUID:
+        try:
+            payload = decode_jwt_token(token)
+
+            # check the user's id
+            user_id = UUID(payload.get("sub"))
+
+            # invalid case 1: invalid token
+            if not user_id:
+                raise self.get_credentials_exception("Could not validate credentials")
+
+            # invalid case 2: expired token
+            expired_at = int(payload.get("exp"))
+            if expired_at < get_now_utc_timestamp():
+                raise self.get_credentials_exception("The token has expired")
+
+            auth_in_db = await self._read_auth_port.read_auth_by_user_id(
+                user_id=user_id
+            )
+
+            # invalid case 3: the user not is not in the DB or deleted
+            if not auth_in_db or auth_in_db.deleted_at:
+                raise self.get_credentials_exception("The user doesn't exist anymore")
+
+            # invalid case 4: the token is stale(the user logged out before)
+            if not auth_in_db.access_token:
+                raise self.get_credentials_exception(
+                    "The token is stale: the user must re-login"
+                )
+
+            return user_id
+
+        except JWTError:
+            raise self.get_credentials_exception(
+                "Token error: Could not validate credentials"
+            )
+
+    @staticmethod
+    def get_credentials_exception(message: str) -> HTTPException:
+        return HTTPException(
+            status_code=HTTPStatus.HTTP_401_UNAUTHORIZED,
+            detail=message,
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 class LoginService(LoginPort):
@@ -60,16 +121,6 @@ class LoginService(LoginPort):
             expiry=get_now_utc_timestamp() + auth_config.ACCESS_TOKEN_EXPRIRES_IN,
             is_admin=is_admin,
         )
-
-
-# TODO: move to dependencies
-class AccessAuthService:
-    def authenticate_user_access_token(self):
-        ...
-        # TODO: cases
-        # 1. if the token is invalid
-        # 2. if the token is expired
-        # 3. if the token is valid => admin? or an ordinary user?
 
 
 class LogoutService(LogoutPort):

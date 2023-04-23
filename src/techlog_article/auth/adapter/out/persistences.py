@@ -1,8 +1,15 @@
 from typing import final, Optional
+from uuid import UUID
 
 from user.domain.user import User
 
-from application.port.out import ReadUserPort, UpdateAuthDTO, UpdateAuthPort
+from domain.auth import Auth
+from application.port.out import (
+    ReadUserPort,
+    UpdateAuthDTO,
+    UpdateAuthPort,
+    ReadAuthPort,
+)
 
 from ._user_repository import UserRepository
 from ._auth_repository import AuthRepository
@@ -19,12 +26,16 @@ class UserPersistenceAdapter(ReadUserPort):
 
 
 @final
-class AuthPersistenceAdapter(UpdateAuthPort):
+class AuthPersistenceAdapter(UpdateAuthPort, ReadAuthPort):
     def __init__(self, *, auth_repository: AuthRepository):
         self._auth_repository = auth_repository
 
+    async def read_auth_by_user_id(self, *, user_id: UUID) -> Optional[Auth]:
+        auth_orm = await self._auth_repository.read_by_user_id(user_id)
+        return Auth.from_orm(auth_orm) if auth_orm else None
+
     async def update_auth(self, *, dto: UpdateAuthDTO) -> None:
-        auth_in_db = await self._auth_repository.read_by_user_id(dto.user_id)
+        auth_orm = await self._auth_repository.read_by_user_id(dto.user_id)
         await self._auth_repository.update(
-            orm=auth_in_db, dao=dto.dict(exclude={"id", "user_id"})
+            orm=auth_orm, dao=dto.dict(exclude={"id", "user_id"})
         )

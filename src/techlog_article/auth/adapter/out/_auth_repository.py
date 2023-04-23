@@ -1,18 +1,17 @@
-from typing import final, Any
+from typing import final, Any, Optional
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from common.database import models
+from common.database import models, CurrentDBSessionDependency
 
 
 @final
 class AuthRepository:
-    def __init__(self, db_session: AsyncSession):
+    def __init__(self, db_session: CurrentDBSessionDependency):
         self._db_session = db_session
 
-    async def read_by_user_id(self, user_id: UUID) -> models.Auth:
+    async def read_by_user_id(self, user_id: UUID) -> Optional[models.Auth]:
         stmt = select(models.Auth).where(models.Auth.user_id == user_id)
         return (await self._db_session.scalars(stmt)).one_or_none()
 
