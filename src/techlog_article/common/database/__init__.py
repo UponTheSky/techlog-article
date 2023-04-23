@@ -1,3 +1,3 @@
-from ._session import session_factory
+from ._session import CurrentDBSessionDependency
 
-__all__ = ["session_factory"]
+__all__ = ["CurrentDBSessionDependency"]

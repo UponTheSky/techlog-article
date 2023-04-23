@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel, Field
 
-from common.utils import ServiceMessage
+from common.utils.jwt import JWTToken
 
 
 class LoginDTO(BaseModel):
@@ -12,5 +12,5 @@ class LoginDTO(BaseModel):
 
 class LoginPort(ABC):
     @abstractmethod
-    def login(self, *, login_dto: LoginDTO) -> ServiceMessage:
+    async def login(self, *, login_dto: LoginDTO) -> JWTToken:
         ...

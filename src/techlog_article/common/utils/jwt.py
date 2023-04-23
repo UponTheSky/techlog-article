@@ -1,7 +1,7 @@
-from typing import Literal
+from typing import Literal, Any
 from uuid import UUID
 
-from jose import jwt
+from jose import jwt, JWTError  # noqa: F401
 from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
 
@@ -34,4 +34,12 @@ def create_token(*, user_id: UUID, expiry: int, is_admin: bool = False) -> JWTTo
             algorithm=auth_config.JWT_ENCODE_ALGORITHM,
         ),
         token_type="bearer",
+    )
+
+
+def decode_token(token: str) -> dict[str, Any]:
+    return jwt.decode(
+        token=token,
+        key=auth_config.JWT_SECRET_KEY,
+        algorithms=[auth_config.JWT_ENCODE_ALGORITHM],
     )
