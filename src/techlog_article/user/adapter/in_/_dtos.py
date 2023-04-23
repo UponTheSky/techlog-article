@@ -1,6 +1,6 @@
 from typing import Optional
 import re
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from pydantic import BaseModel, validator, Field
 
@@ -72,16 +72,6 @@ class CreateUser(BaseModel):
     def two_passwords_should_match(cls, v, values, **kwargs):
         return _match_passwords(v, values.get("password1"))
 
-    class Cnofig:
-        schema_extra = {
-            "example": {
-                "name": "testname",
-                "email": "test@test.com",
-                "password": "1Q2w3e4r!",
-                "password_recheck": "1Q2w3e4r!",
-            }
-        }
-
 
 class ReadUser(BaseModel):
     id: UUID
@@ -107,17 +97,3 @@ class UpdateUser(BaseModel):
     def two_password_should_match(cls, v, values, **kwargs):
         password1 = values.get("password1")
         return _match_passwords(v, password1) if password1 else None
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "id": str(uuid4()),
-                "name": "updated_name",
-                "password": "new_password",
-                "password_recheck": "new_password",
-            }
-        }
-
-
-class DeleteUser(BaseModel):
-    id: UUID

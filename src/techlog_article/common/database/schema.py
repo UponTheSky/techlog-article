@@ -9,11 +9,13 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 class Base(DeclarativeBase):
     # default fields for every orm object
     created_at: Mapped[datetime] = mapped_column(server_defuault=func.now())
-    updated_at: Mapped[Optional[datetime]] = mapped_column(default=None)
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
+        default=None, onupdate=func.now()
+    )
     deleted_at: Mapped[Optional[datetime]] = mapped_column(default=None)
 
 
-class DBUser(Base):
+class User(Base):
     __tablename__ = "user"
 
     # fields
@@ -21,13 +23,13 @@ class DBUser(Base):
     username: Mapped[str] = mapped_column(index=True)
 
     # relationship
-    auth: Mapped["DBAuth"] = relationship(back_populates="user")
+    auth: Mapped["Auth"] = relationship(back_populates="user")
 
     def __repr__(self) -> str:
         return f"DBUser id={self.id!r}"
 
 
-class DBAuth(Base):
+class Auth(Base):
     """
     Remark: since you can't directly store a UUID data into a MySQL database,
     you have to convert it to other data formats
@@ -36,12 +38,12 @@ class DBAuth(Base):
     __tablename__ = "auth"
 
     # fields
-    id: Mapped[str] = mapped_column(String(32), primary_key=True)
-    user_id: Mapped[str] = mapped_column(ForeignKey("user.id"))
-    access_token: Mapped[str] = mapped_column(String(255), default="")
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
+    access_token: Mapped[str] = mapped_column(String(255), nullable=True)
 
     # relationship
-    user: Mapped[DBUser] = relationship(back_populates="auth")
+    user: Mapped[User] = relationship(back_populates="auth")
 
     def __repr__(self) -> str:
         return f"DBAuth id={self.id!r}"
