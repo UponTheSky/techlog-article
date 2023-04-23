@@ -1,5 +1,7 @@
-from typing import final, Optional
+from typing import final, Optional, Annotated
 from uuid import UUID
+
+from fastapi import Depends
 
 from user.domain.user import User
 
@@ -17,7 +19,7 @@ from ._auth_repository import AuthRepository
 
 @final
 class UserPersistenceAdapter(ReadUserPort):
-    async def __init__(self, *, user_repository: UserRepository):
+    async def __init__(self, *, user_repository: Annotated[UserRepository, Depends()]):
         self._user_repository = user_repository
 
     async def read_user_by_name(self, *, username: str) -> Optional[User]:
@@ -27,7 +29,7 @@ class UserPersistenceAdapter(ReadUserPort):
 
 @final
 class AuthPersistenceAdapter(UpdateAuthPort, ReadAuthPort):
-    def __init__(self, *, auth_repository: AuthRepository):
+    def __init__(self, *, auth_repository: Annotated[AuthRepository, Depends()]):
         self._auth_repository = auth_repository
 
     async def read_auth_by_user_id(self, *, user_id: UUID) -> Optional[Auth]:

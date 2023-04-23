@@ -22,7 +22,9 @@ from adapter.out.persistences import UserPersistenceAdapter, AuthPersistenceAdap
 
 class AuthTokenCheckService:
     def __init__(
-        self, *, read_auth_port: Annotated[ReadAuthPort, AuthPersistenceAdapter]
+        self,
+        *,
+        read_auth_port: Annotated[ReadAuthPort, Depends(AuthPersistenceAdapter)],
     ):
         self._read_auth_port = read_auth_port
 
@@ -73,6 +75,9 @@ class AuthTokenCheckService:
             detail=message,
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+CurrentUserIdDependency = Annotated[UUID, Depends(AuthTokenCheckService())]
 
 
 class LoginService(LoginPort):
