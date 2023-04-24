@@ -1,12 +1,20 @@
 from typing import final, Annotated
-from common.utils.password import hash_password
+from uuid import UUID
 
 from fastapi import status as HTTPStatus, HTTPException, Depends
 
-from adapter.out.persistences import UserPersistenceAdapter
+from common.utils.password import hash_password
+from adapter.out.persistences import UserPersistenceAdapter, UserAuthPersistenceAdapter
 
-from .port.in_ import SignUpDTO, SignUpPort
-from .port.out import CheckUserPort, CreateUserDTO, CreateUserPort
+from .port.in_ import SignUpDTO, SignUpPort, SignOutPort
+from .port.out import (
+    CheckUserPort,
+    CreateUserDTO,
+    CreateUserPort,
+    UpdateUserDTO,  # noqa: F401
+    UpdateUserPort,  # noqa: F401
+    DeleteUserAuthPort,
+)
 
 
 @final
@@ -46,9 +54,19 @@ class SignUpService(SignUpPort):
 
 
 @final
-class SignOutService:
-    def __init__(self):
-        ...
+class SignOutService(SignOutPort):
+    def __init__(
+        self,
+        delete_user_auth_port: Annotated[
+            DeleteUserAuthPort, Depends(UserAuthPersistenceAdapter)
+        ],
+    ):
+        self._delete_user_auth_port = delete_user_auth_port
+
+    async def sign_out(self, *, user_id: UUID) -> None:
+        await self._delete_user_auth_port.delete_user_auth(user_id=user_id)
+
+        return None
 
 
 @final

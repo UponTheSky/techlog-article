@@ -1,13 +1,12 @@
 from typing import Annotated
-from uuid import UUID  # noqa: F401
 
 from fastapi import APIRouter, status, Path, Form, Body, Depends  # noqa: F401
 
 from common.tags import Tags
 from auth.application.services import CurrentUserIdDependency  # noqa: F401
 
-from application.port.in_ import SignUpDTO, SignUpPort
-from application.services import SignUpService
+from application.port.in_ import SignUpDTO, SignUpPort, SignOutPort
+from application.services import SignUpService, SignOutService
 
 router = APIRouter(
     prefix="/user",
@@ -17,7 +16,7 @@ router = APIRouter(
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_user(
+async def sign_up(
     *,
     username: str = Form(),
     email: str = Form(),
@@ -49,9 +48,12 @@ async def create_user(
 #     raise NotImplementedError()
 
 
-# # DELETE
-# @router.delete("/{id}", status_code=status.HTTP_200_OK)
-# async def delete_user(
-#     *, id: UUID = Path(), admin: CurrentUserDependency
-# ):  # TODO: change this to admin
-#     raise NotImplementedError()
+@router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
+async def sign_out(
+    *,
+    user_id: CurrentUserIdDependency,
+    sign_out_port: Annotated[SignOutPort, Depends(SignOutService)]
+) -> None:
+    await sign_out_port.sign_out(user_id=user_id)
+
+    return None
