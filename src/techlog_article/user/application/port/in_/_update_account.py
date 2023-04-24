@@ -1,5 +1,6 @@
 from typing import Optional
 from abc import ABC, abstractmethod
+from uuid import UUID
 
 from pydantic import BaseModel, validator
 
@@ -12,9 +13,10 @@ from ._validation_helpers import (
 
 
 class UpdateAccountDTO(BaseModel):
-    """The optional version of SignUpDTO"""
+    """The optional version of SignUpDTO, with user_id added"""
 
-    name: Optional[str]
+    user_id: UUID
+    username: Optional[str]
     email: Optional[str]
     password: Optional[str]
     password_recheck: Optional[str]
@@ -40,7 +42,7 @@ class UpdateAccountDTO(BaseModel):
         return match_passwords(target=v, source=source_password)
 
     class Config:
-        description = "An optional version of SignUpDTO"
+        description = "An optional version of SignUpDTO, with user_id added"
 
 
 class UpdateAccountPort(ABC):

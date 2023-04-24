@@ -8,6 +8,10 @@ def validate_username(*, username: str) -> str:
             "A username must only consist of alphabet \
                 lowercases, digits, and underscores"
         )
+
+    if not (8 <= len(username) <= 16):
+        raise ValueError("A username must be of length from 8 to 16")
+
     return username
 
 
