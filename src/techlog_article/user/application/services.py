@@ -3,7 +3,7 @@ from common.utils.password import hash_password
 
 
 @final
-class UserSignUpService:
+class SignUpService:
     def __init__(self):
         ...
 
@@ -12,12 +12,12 @@ class UserSignUpService:
 
 
 @final
-class UserSignOutService:
+class SignOutService:
     def __init__(self):
         ...
 
 
 @final
-class UserAccountUpdateService:
+class UpdateAccountService:
     def __init__(self):
         ...
