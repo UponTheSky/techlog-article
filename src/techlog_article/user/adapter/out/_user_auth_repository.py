@@ -1,4 +1,4 @@
-from typing import cast, final
+from typing import final
 from uuid import UUID
 
 from sqlalchemy import select
@@ -20,11 +20,11 @@ class UserAuthRepository:
             .options(selectinload(models.User.auth))
             .where(models.User.id == user_id)
         )
-        user_orm = cast(models.User, await self._db_session.scalar(stmt))
+        user_orm = (await self._db_session.scalars(stmt)).one()
         auth_orm = user_orm.auth
 
         user_orm.deleted_at = get_now_utc_timestamp()
         auth_orm.deleted_at = get_now_utc_timestamp()
         auth_orm.access_token = None
 
-        await self._db_session.flush(user_orm)
+        await self._db_session.flush()

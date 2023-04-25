@@ -13,10 +13,10 @@ class AuthRepository:
 
     async def read_by_user_id(self, user_id: UUID) -> Optional[models.Auth]:
         stmt = select(models.Auth).where(models.Auth.user_id == user_id)
-        return (await self._db_session.scalars(stmt)).one_or_none()
+        return await self._db_session.scalar(stmt)
 
     async def update(self, *, orm: models.Auth, dao: dict[str, Any]) -> models.Auth:
         for field, value in dao:
             setattr(orm, field, value)
 
-        await self._db_session.flush(orm)
+        await self._db_session.flush()

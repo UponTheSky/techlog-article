@@ -12,4 +12,4 @@ class UserRepository:
 
     async def read_by_username(self, username: str) -> Optional[models.User]:
         stmt = select(models.User).where(models.User.username == username)
-        return (await self._db_session.scalars(stmt)).one_or_none()
+        return await self._db_session.scalar(stmt)
