@@ -1,7 +1,8 @@
-from typing import final, Any
+from typing import final, Any, Optional
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, func
+from sqlalchemy.orm import joinedload, selectinload
 
 from common.database import CurrentDBSessionDependency, models
 
@@ -22,3 +23,31 @@ class ArticleUserRepository:
 
         await self._db_session.add(article_orm)
         await self._db_session.flush()
+
+    async def read_article_by_id(self, id: UUID) -> Optional[models.Article]:
+        stmt = (
+            select(models.Article)
+            .options(selectinload(models.Article.author))
+            .where(models.Article.id == id)
+        )
+
+        return await self._db_session.scalar(stmt)
+
+    async def read_article_list(
+        self, *, offset: int, limit: int, order_by: str
+    ) -> list[models.Article]:
+        stmt = (
+            select(models.Article)
+            .options(joinedload(models.Article.author))
+            .offset(offset)
+            .limit(limit)
+            .order_by(getattr(models.Article, order_by))
+        )
+
+        return (await self._db_session.scalars(stmt)).all()
+
+    async def get_total_articles_count(self) -> int:
+        stmt = select(func.count(models.Article.id))
+        result = await self._db_session.scalar(stmt)
+
+        return result if result else 0

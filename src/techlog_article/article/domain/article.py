@@ -4,14 +4,12 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from user.domain.user import User
-
 
 class Article(BaseModel):
     id: UUID
     title: str
     content: str
-    author: User
+    author_id: UUID
 
     created_at: datetime
     updated_at: Optional[datetime]

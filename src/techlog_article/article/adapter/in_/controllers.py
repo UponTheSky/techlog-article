@@ -1,22 +1,29 @@
 from typing import Annotated
-from uuid import UUID  # noqa: F401
+from uuid import UUID
 
 from fastapi import (
     APIRouter,
-    Query,  # noqa: F401
-    Path,  # noqa: F401
+    Query,
+    Path,
     Body,
     status as HTTPStatus,
     Depends,
+    HTTPException,
 )
 
-from common.consts import MAX_ARTICLE_LIMIT  # noqa: F401
 from common.tags import Tags
 from auth.application.services import CurrentUserIdDependency
 
-from application.services import CreateArticleService
+from application.services import CreateArticleService, ReadArticeService
 
-from application.port.in_ import CreateArticleInDTO, CreateArticleInPort
+from application.port.in_ import (
+    CreateArticleInDTO,
+    CreateArticleInPort,
+    ReadArticleListInDTO,
+    ReadArticleInPort,
+    ReadArticleResponse,
+    ReadArticleListResponse,
+)
 
 from ._dtos import CreateArticleBody
 
@@ -28,22 +35,7 @@ router = APIRouter(
 )
 
 
-# # READ
-# @router.get("/", status_code=HTTPStatus.HTTP_200_OK)
-# async def read_articles(
-#     offset: int = Query(default=0, ge=0, description="offset for pagination"),
-#     limit: int = Query(
-#         default=MAX_ARTICLE_LIMIT, ge=0, description="limit for pagination"
-#     ),
-# ) -> list[ArticleResponse]:
-#     raise NotImplementedError()
-
-
-# @router.get("/{id}", status_code=HTTPStatus.HTTP_200_OK)
-# async def read_article_by_id(id: UUID = Path(...)) -> ArticleResponse:
-#     raise NotImplementedError()
-
-
+# CREATE
 @router.post("/", status_code=HTTPStatus.HTTP_201_CREATED)
 async def create_article(
     *,
@@ -60,6 +52,36 @@ async def create_article(
     )
 
     return None
+
+
+# READ
+@router.get("/", status_code=HTTPStatus.HTTP_200_OK)
+async def read_articles(
+    *,
+    offset: int = Query(),
+    limit: int = Query(),
+    order_by: str = "created_at",
+    read_article_in_port: Annotated[ReadArticleInPort, Depends(ReadArticeService)],
+) -> ReadArticleListResponse:
+    return await read_article_in_port.read_article_list(
+        dto=ReadArticleListInDTO(offset=offset, limit=limit, order_by=order_by)
+    )
+
+
+@router.get("/{id}", status_code=HTTPStatus.HTTP_200_OK)
+async def read_article_by_id(
+    *,
+    id: UUID = Path(),
+    read_article_in_port: Annotated[ReadArticleInPort, Depends(ReadArticeService)],
+) -> ReadArticleResponse:
+    article_response = await read_article_in_port.read_article_by_id(id)
+    if not article_response:
+        raise HTTPException(
+            status_code=HTTPStatus.HTTP_404_NOT_FOUND,
+            detail=f"The article of id {id} doesn't exist in the DB",
+        )
+
+    return article_response
 
 
 # # UPDATE
