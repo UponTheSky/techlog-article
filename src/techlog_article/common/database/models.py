@@ -2,14 +2,16 @@ from typing import Optional
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
     # default fields for every orm object
-    created_at: Mapped[datetime]
-    updated_at: Mapped[Optional[datetime]] = mapped_column(default=None)
+    created_at: Mapped[datetime] = mapped_column(server_defuault=func.now())
+    updated_at: Mapped[Optional[datetime]] = mapped_column(
+        default=None, onupdate=func.now()
+    )
     deleted_at: Mapped[Optional[datetime]] = mapped_column(default=None)
 
 
@@ -17,15 +19,16 @@ class User(Base):
     __tablename__ = "user"
 
     # fields
-    # TODO: add index=True attribute when necessary
     id: Mapped[UUID] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(String(16), unique=True)
+    username: Mapped[str] = mapped_column(String(16), index=True)
+    email: Mapped[str] = mapped_column(index=True)
+    hashed_password: Mapped[str] = mapped_column()
 
     # relationship
     auth: Mapped["Auth"] = relationship(back_populates="user")
 
     def __repr__(self) -> str:
-        return f"DBUser id={self.id!r}"
+        return f"DB User id={self.id!r}"
 
 
 class Auth(Base):
@@ -45,4 +48,4 @@ class Auth(Base):
     user: Mapped[User] = relationship(back_populates="auth")
 
     def __repr__(self) -> str:
-        return f"DBAuth id={self.id!r}"
+        return f"DB Auth id={self.id!r}"

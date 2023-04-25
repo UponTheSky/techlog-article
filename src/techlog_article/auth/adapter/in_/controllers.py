@@ -1,7 +1,6 @@
 from typing import Annotated
-from uuid import UUID
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status as HTTPStatus, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from common.utils.jwt import JWTToken
@@ -13,11 +12,11 @@ from application.services import LoginService, LogoutService, CurrentUserIdDepen
 router = APIRouter(
     prefix="/auth",
     tags=[Tags.user, Tags.auth],
-    responses={status.HTTP_404_NOT_FOUND: {"description": "Not Found"}},
+    responses={HTTPStatus.HTTP_404_NOT_FOUND: {"description": "Not Found"}},
 )
 
 
-@router.post("/login", status_code=status.HTTP_201_CREATED)
+@router.post("/login", status_code=HTTPStatus.HTTP_201_CREATED)
 async def login(
     *,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -28,12 +27,11 @@ async def login(
     )
 
 
-@router.post("/logout/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/logout", status_code=HTTPStatus.HTTP_204_NO_CONTENT)
 async def logout(
-    id: UUID,
     current_user_id: CurrentUserIdDependency,
     auth_service: Annotated[LogoutPort, Depends(LogoutService)],
 ) -> None:
-    await auth_service.logout(id, current_user_id)
+    await auth_service.logout(user_id=current_user_id)
 
     return None
