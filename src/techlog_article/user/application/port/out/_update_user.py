@@ -1,14 +1,14 @@
 from typing import Optional
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from uuid import UUID
 
+from pydantic import BaseModel
 
-@dataclass
-class UpdateUserDTO:
-    username: Optional[str]
-    email: Optional[str]
-    hashed_password: Optional[str]
+
+class UpdateUserDTO(BaseModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    hashed_password: Optional[str] = None
 
 
 class UpdateUserPort(ABC):

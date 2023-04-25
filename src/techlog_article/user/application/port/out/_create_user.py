@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+
+from pydantic import BaseModel
 
 
-@dataclass
-class CreateUserDTO:
+class CreateUserDTO(BaseModel):
     username: str
     hashed_password: str
     email: str

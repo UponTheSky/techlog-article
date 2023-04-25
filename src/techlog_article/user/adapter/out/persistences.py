@@ -8,6 +8,8 @@ from application.port.out import (
     CreateUserDTO,
     CreateUserPort,
     DeleteUserAuthPort,
+    UpdateUserDTO,
+    UpdateUserPort,
 )
 from domain.user import User
 
@@ -16,7 +18,7 @@ from ._user_auth_repository import UserAuthRepository
 
 
 @final
-class UserPersistenceAdapter(CheckUserPort, CreateUserPort):
+class UserPersistenceAdapter(CheckUserPort, CreateUserPort, UpdateUserPort):
     def __init__(self, *, user_repository: Annotated[UserRepository, Depends()]):
         self._user_repository = user_repository
 
@@ -29,7 +31,12 @@ class UserPersistenceAdapter(CheckUserPort, CreateUserPort):
         return user_orm is not None
 
     async def create_user(self, dto: CreateUserDTO) -> None:
-        await self._user_repository.create_user(dto=dto)
+        await self._user_repository.create_user(dao=dto.dict())
+
+    async def update_user(self, *, user_id: UUID, dto: UpdateUserDTO) -> None:
+        await self._user_repository.update_user(
+            user_id=user_id, dao=dto.dict(exclude_none=True)
+        )
 
 
 @final

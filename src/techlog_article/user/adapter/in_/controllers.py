@@ -1,12 +1,19 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
-from fastapi import APIRouter, status, Path, Form, Body, Depends  # noqa: F401
+from fastapi import APIRouter, status, Form, Depends  # noqa: F401
 
 from common.tags import Tags
 from auth.application.services import CurrentUserIdDependency  # noqa: F401
 
-from application.port.in_ import SignUpDTO, SignUpPort, SignOutPort
+from application.port.in_ import (
+    SignUpDTO,
+    SignUpPort,
+    SignOutPort,
+    UpdateAccountDTO,
+    UpdateAccountPort,
+)
 from application.services import SignUpService, SignOutService
+from techlog_article.user.application.services import UpdateAccountService
 
 router = APIRouter(
     prefix="/user",
@@ -35,17 +42,27 @@ async def sign_up(
     return None
 
 
-# @router.patch("/{id}", status_code=status.HTTP_200_OK)
-# async def update_user(
-#     *,
-#     id: UUID = Path(),
-#     data: UpdateUser = Body(
-#         description="data required for updating the current user info; \
-#             however, the email couldn't be changed"
-#     ),
-#     admin: CurrentUserDependency  # TODO: change this to admin
-# ) -> UserResponse:
-#     raise NotImplementedError()
+@router.patch("/", status_code=status.HTTP_200_OK)
+async def update_user_account(
+    *,
+    user_id: CurrentUserIdDependency,
+    username: Optional[str] = Form(default=None),
+    email: Optional[str] = Form(default=None),
+    password: Optional[str] = Form(default=None),
+    password_recheck: Optional[str] = Form(default=None),
+    update_account_port: Annotated[UpdateAccountPort, Depends(UpdateAccountService)]
+) -> None:
+    await update_account_port.update_account(
+        dto=UpdateAccountDTO(
+            user_id=user_id,
+            username=username,
+            email=email,
+            password=password,
+            password_recheck=password_recheck,
+        )
+    )
+
+    return None
 
 
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT)

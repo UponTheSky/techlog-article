@@ -47,5 +47,5 @@ class UpdateAccountDTO(BaseModel):
 
 class UpdateAccountPort(ABC):
     @abstractmethod
-    async def sign_up(self, *, dto: UpdateAccountDTO) -> None:
+    async def update_account(self, *, dto: UpdateAccountDTO) -> None:
         ...
