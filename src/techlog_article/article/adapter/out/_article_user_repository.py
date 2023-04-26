@@ -28,7 +28,7 @@ class ArticleUserRepository:
         stmt = (
             select(models.Article)
             .options(selectinload(models.Article.author))
-            .where(models.Article.id == id)
+            .where(models.Article.id == id, models.Article.deleted_at is None)
         )
 
         return await self._db_session.scalar(stmt)
@@ -39,6 +39,7 @@ class ArticleUserRepository:
         stmt = (
             select(models.Article)
             .options(joinedload(models.Article.author))
+            .where(models.Article.deleted_at is None)
             .offset(offset)
             .limit(limit)
             .order_by(getattr(models.Article, order_by))

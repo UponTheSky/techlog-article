@@ -1,12 +1,15 @@
 from typing import final, Annotated, Optional
 from uuid import UUID
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status as HTTPStatus
 
 from user.domain.user import User
 
 from domain.article import Article
-from adapter.out.persistences import ArticleUserPersistenceAdapter
+from adapter.out.persistences import (
+    ArticleUserPersistenceAdapter,
+    ArticlePersistenceAdapter,
+)
 
 from .port.in_ import (
     CreateArticleInDTO,
@@ -103,13 +106,32 @@ class ReadArticeService(ReadArticleInPort):
 @final
 class UpdateArticeService(UpdateArticleInPort):
     def __init__(
-        self, *, update_article_out_port: Annotated[UpdateArticleOutPort, Depends()]
-    ):  # TODO: persistence -> article only
+        self,
+        *,
+        update_article_out_port: Annotated[
+            UpdateArticleOutPort, Depends(ArticlePersistenceAdapter)
+        ]
+    ):
         self._update_article_out_port = update_article_out_port
 
     async def update_article(
-        self, *, article_id: UUID, dto: UpdateArticleInDTO
+        self, *, author_id: UUID, article_id: UUID, dto: UpdateArticleInDTO
     ) -> None:
+        article_in_db = await self._update_article_out_port.read_article_by_id(
+            article_id
+        )
+
+        if not article_in_db:
+            raise HTTPException(
+                status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
+            )
+
+        if article_in_db.author_id != author_id:
+            raise HTTPException(
+                status_code=HTTPStatus.HTTP_403_FORBIDDEN,
+                detail="The user doesn't have the permission to modify this content",
+            )
+
         await self._update_article_out_port.update_article(
             article_id=article_id,
             dto=UpdateArticleOutDTO(**dto.dict(exclude_unset=True)),
@@ -121,11 +143,30 @@ class UpdateArticeService(UpdateArticleInPort):
 @final
 class DeleteArticleService(DeleteArticleInPort):
     def __init__(
-        self, *, delete_article_out_port: Annotated[DeleteArticleOutPort, None]
-    ):  # TODO: DI
+        self,
+        *,
+        delete_article_out_port: Annotated[
+            DeleteArticleOutPort, Depends(ArticlePersistenceAdapter)
+        ]
+    ):
         self._delete_article_out_port = delete_article_out_port
 
-    async def delete_article(self, *, article_id: UUID) -> None:
+    async def delete_article(self, *, author_id: UUID, article_id: UUID) -> None:
+        article_in_db = await self._delete_article_out_port.read_article_by_id(
+            article_id
+        )
+
+        if not article_in_db:
+            raise HTTPException(
+                status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
+            )
+
+        if article_in_db.author_id != author_id:
+            raise HTTPException(
+                status_code=HTTPStatus.HTTP_403_FORBIDDEN,
+                detail="The user doesn't have the permission to modify this content",
+            )
+
         await self._delete_article_out_port.delete_article(article_id=article_id)
 
         return None

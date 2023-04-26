@@ -68,6 +68,10 @@ class ArticlePersistenceAdapter(UpdateArticleOutPort, DeleteArticleOutPort):
     def __init__(self, article_repository: Annotated[ArticleRepository, Depends()]):
         self._article_repository = article_repository
 
+    async def read_article_by_id(self, id: UUID) -> Article:
+        article_orm = await self._article_repository.read_article_by_id(id)
+        return Article.from_orm(article_orm) if article_orm else None
+
     async def update_article(
         self, *, article_id: UUID, dto: UpdateArticleOutDTO
     ) -> None:

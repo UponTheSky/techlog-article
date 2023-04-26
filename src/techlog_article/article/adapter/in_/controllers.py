@@ -14,7 +14,12 @@ from fastapi import (
 from common.tags import Tags
 from auth.application.services import CurrentUserIdDependency
 
-from application.services import CreateArticleService, ReadArticeService
+from application.services import (
+    CreateArticleService,
+    ReadArticeService,
+    UpdateArticeService,
+    DeleteArticleService,
+)
 
 from application.port.in_ import (
     CreateArticleInDTO,
@@ -23,6 +28,9 @@ from application.port.in_ import (
     ReadArticleInPort,
     ReadArticleResponse,
     ReadArticleListResponse,
+    UpdateArticleInDTO,
+    UpdateArticleInPort,
+    DeleteArticleInPort,
 )
 
 from ._dtos import CreateArticleBody
@@ -84,24 +92,34 @@ async def read_article_by_id(
     return article_response
 
 
-# # UPDATE
-# @router.patch("/{id}", status_code=HTTPStatus.HTTP_200_OK)
-# async def update_article(
-#     *,
-#     id: UUID = Path(),
-#     user: CurrentUserDependency,
-#     data: UpdateArticle = Body(
-#         description="data required for updating an article item"
-#     ),
-# ) -> ArticleResponse:
-#     raise NotImplementedError()
+# UPDATE
+@router.patch("/{id}", status_code=HTTPStatus.HTTP_200_OK)
+async def update_article(
+    *,
+    id: UUID = Path(),
+    author_id: CurrentUserIdDependency,
+    dto: UpdateArticleInDTO = Body(
+        description="data required for updating an article item"
+    ),
+    update_article_in_port: Annotated[
+        UpdateArticleInPort, Depends(UpdateArticeService)
+    ],
+) -> None:
+    await update_article_in_port.update_article(
+        author_id=author_id, article_id=id, dto=dto
+    )
 
 
-# # DELETE
-# @router.delete("/{id}", status_code=HTTPStatus.HTTP_200_OK)
-# async def delete_article(
-#     *,
-#     id: UUID = Path(),
-#     user: CurrentUserDependency,
-# ) -> ArticleResponse:
-#     raise NotImplementedError()
+# DELETE
+@router.delete("/{id}", status_code=HTTPStatus.HTTP_204_NO_CONTENT)
+async def delete_article(
+    *,
+    id: UUID = Path(),
+    author_id: CurrentUserIdDependency,
+    delete_article_in_port: Annotated[
+        DeleteArticleInPort, Depends(DeleteArticleService)
+    ],
+) -> None:
+    await delete_article_in_port.delete_article(author_id=author_id, article_id=id)
+
+    return None

@@ -23,6 +23,6 @@ class UpdateArticleInDTO(BaseModel):
 class UpdateArticleInPort(ABC):
     @abstractmethod
     async def update_article(
-        self, *, article_id: UUID, dto: UpdateArticleInDTO
+        self, *, author_id: UUID, article_id: UUID, dto: UpdateArticleInDTO
     ) -> None:
         ...
