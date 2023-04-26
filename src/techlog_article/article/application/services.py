@@ -17,6 +17,7 @@ from .port.in_ import (
     ReadArticleListResponse,
     UpdateArticleInDTO,
     UpdateArticleInPort,
+    DeleteArticleInPort,
 )
 from .port.out import (
     CreateArticleOutDTO,
@@ -24,6 +25,7 @@ from .port.out import (
     ReadArticleOutPort,
     UpdateArticleOutDTO,
     UpdateArticleOutPort,
+    DeleteArticleOutPort,
 )
 
 
@@ -113,7 +115,17 @@ class UpdateArticeService(UpdateArticleInPort):
             dto=UpdateArticleOutDTO(**dto.dict(exclude_unset=True)),
         )
 
+        return None
+
 
 @final
-class DeleteArticleService:
-    ...
+class DeleteArticleService(DeleteArticleInPort):
+    def __init__(
+        self, *, delete_article_out_port: Annotated[DeleteArticleOutPort, None]
+    ):  # TODO: DI
+        self._delete_article_out_port = delete_article_out_port
+
+    async def delete_article(self, *, article_id: UUID) -> None:
+        await self._delete_article_out_port.delete_article(article_id=article_id)
+
+        return None

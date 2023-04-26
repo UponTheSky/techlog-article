@@ -13,6 +13,7 @@ from application.port.out import (
     ArticleWithAuthor,
     UpdateArticleOutDTO,
     UpdateArticleOutPort,
+    DeleteArticleOutPort,
 )
 
 from ._article_user_repository import ArticleUserRepository
@@ -63,7 +64,7 @@ class ArticleUserPersistenceAdapter(CreateArticleOutPort, ReadArticleOutPort):
 
 
 @final
-class ArticlePersistenceAdapter(UpdateArticleOutPort):
+class ArticlePersistenceAdapter(UpdateArticleOutPort, DeleteArticleOutPort):
     def __init__(self, article_repository: Annotated[ArticleRepository, Depends()]):
         self._article_repository = article_repository
 
@@ -71,3 +72,6 @@ class ArticlePersistenceAdapter(UpdateArticleOutPort):
         self, *, article_id: UUID, dto: UpdateArticleOutDTO
     ) -> None:
         self._article_repository.update_article(article_id=article_id, dao=dto.dict())
+
+    async def delete_article(self, *, article_id: UUID) -> None:
+        return await self._article_repository.delete_article(article_id=article_id)

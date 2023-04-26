@@ -19,3 +19,6 @@ class ArticleRepository:
             setattr(article_orm, field, value)
 
         await self._db_session.flush()
+
+    async def delete_article(self, *, article_id: UUID) -> None:
+        ...
