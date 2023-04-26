@@ -2,7 +2,7 @@ from typing import Optional
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import String, ForeignKey, func
+from sqlalchemy import String, Text, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -26,6 +26,7 @@ class User(Base):
 
     # relationship
     auth: Mapped["Auth"] = relationship(back_populates="user")
+    articles: Mapped[list["Article"]] = relationship(back_populates="author")
 
     def __repr__(self) -> str:
         return f"DB User id={self.id!r}"
@@ -41,7 +42,7 @@ class Auth(Base):
 
     # fields
     id: Mapped[UUID] = mapped_column(primary_key=True)
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"))
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), index=True)
     access_token: Mapped[Optional[str]] = mapped_column(String(255))
 
     # relationship
@@ -49,3 +50,19 @@ class Auth(Base):
 
     def __repr__(self) -> str:
         return f"DB Auth id={self.id!r}"
+
+
+class Article(Base):
+    __tablename__ = "article"
+
+    # fields
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    author_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), index=True)
+    title: Mapped[str] = mapped_column(String(32))
+    content: Mapped[Optional[str]] = mapped_column(Text)
+
+    # relatioship
+    author: Mapped[User] = relationship(back_populates="articles")
+
+    def __repr__(self) -> str:
+        return f"DB Article id={self.id!r}"

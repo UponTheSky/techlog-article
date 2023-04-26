@@ -1,4 +1,4 @@
-from typing import Optional, final, Any, cast
+from typing import Optional, final, Any
 from uuid import UUID
 
 from sqlalchemy import select
@@ -13,24 +13,22 @@ class UserRepository:
 
     async def read_by_username(self, username: str) -> Optional[models.User]:
         stmt = select(models.User).where(models.User.username == username)
-        return (await self._db_session.scalars(stmt)).one_or_none()
+        return await self._db_session.scalar(stmt)
 
     async def read_by_email(self, email: str) -> Optional[models.User]:
         stmt = select(models.User).where(models.User.email == email)
-        return (await self._db_session.scalars(stmt)).one_or_none()
+        return await self._db_session.scalar(stmt)
 
     async def create_user(self, *, dao: dict[str, Any]) -> None:
         user_orm = models.User(**dao)
         await self._db_session.add(user_orm)
-        await self._db_session.flush(user_orm)
+        await self._db_session.flush()
 
     async def update_user(self, *, user_id: UUID, dao: dict[str, Any]) -> None:
         stmt = select(models.User).where(models.User.id == user_id)
-        user_orm = cast(
-            models.User, (await self._db_session.scalars(stmt)).one_or_none()
-        )
+        user_orm = (await self._db_session.scalars(stmt)).one()
 
         for field, new_value in dao:
             setattr(user_orm, field, new_value)
 
-        await self._db_session.flush(user_orm)
+        await self._db_session.flush()
