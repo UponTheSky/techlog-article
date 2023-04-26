@@ -13,3 +13,6 @@ class Article(BaseModel):
 
     created_at: datetime
     updated_at: Optional[datetime]
+
+    class Config:
+        orm_mode = True

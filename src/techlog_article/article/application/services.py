@@ -15,8 +15,16 @@ from .port.in_ import (
     ReadArticleResponse,
     ReadArticleListInDTO,
     ReadArticleListResponse,
+    UpdateArticleInDTO,
+    UpdateArticleInPort,
 )
-from .port.out import CreateArticleOutDTO, CreateArticleOutPort, ReadArticleOutPort
+from .port.out import (
+    CreateArticleOutDTO,
+    CreateArticleOutPort,
+    ReadArticleOutPort,
+    UpdateArticleOutDTO,
+    UpdateArticleOutPort,
+)
 
 
 @final
@@ -91,8 +99,19 @@ class ReadArticeService(ReadArticleInPort):
 
 
 @final
-class UpdateArticeService:
-    ...
+class UpdateArticeService(UpdateArticleInPort):
+    def __init__(
+        self, *, update_article_out_port: Annotated[UpdateArticleOutPort, Depends()]
+    ):  # TODO: persistence -> article only
+        self._update_article_out_port = update_article_out_port
+
+    async def update_article(
+        self, *, article_id: UUID, dto: UpdateArticleInDTO
+    ) -> None:
+        await self._update_article_out_port.update_article(
+            article_id=article_id,
+            dto=UpdateArticleOutDTO(**dto.dict(exclude_unset=True)),
+        )
 
 
 @final

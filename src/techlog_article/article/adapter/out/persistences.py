@@ -11,9 +11,12 @@ from application.port.out import (
     CreateArticleOutPort,
     ReadArticleOutPort,
     ArticleWithAuthor,
+    UpdateArticleOutDTO,
+    UpdateArticleOutPort,
 )
 
 from ._article_user_repository import ArticleUserRepository
+from ._article_repository import ArticleRepository
 
 
 @final
@@ -57,3 +60,14 @@ class ArticleUserPersistenceAdapter(CreateArticleOutPort, ReadArticleOutPort):
 
     async def get_total_articles_count(self) -> int:
         return await self._article_user_repository.get_total_articles_count()
+
+
+@final
+class ArticlePersistenceAdapter(UpdateArticleOutPort):
+    def __init__(self, article_repository: Annotated[ArticleRepository, Depends()]):
+        self._article_repository = article_repository
+
+    async def update_article(
+        self, *, article_id: UUID, dto: UpdateArticleOutDTO
+    ) -> None:
+        self._article_repository.update_article(article_id=article_id, dao=dto.dict())

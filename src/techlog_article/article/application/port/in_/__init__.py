@@ -5,6 +5,7 @@ from ._read import (
     ReadArticleListInDTO,
     ReadArticleListResponse,
 )
+from ._update import UpdateArticleInDTO, UpdateArticleInPort
 
 __all__ = [
     "CreateArticleInDTO",
@@ -13,4 +14,6 @@ __all__ = [
     "ReadArticleResponse",
     "ReadArticleListInDTO",
     "ReadArticleListResponse",
+    "UpdateArticleInDTO",
+    "UpdateArticleInPort",
 ]
