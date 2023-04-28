@@ -9,7 +9,7 @@ class CreateUserDTO(BaseModel):
     email: str
 
 
-class CreateUserPort(ABC):
+class CreateUserAuthPort(ABC):
     @abstractmethod
-    async def create_user(self, *, dto: CreateUserDTO) -> None:
+    async def create_user_with_auth(self, *, dto: CreateUserDTO) -> None:
         ...

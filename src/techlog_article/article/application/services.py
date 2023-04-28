@@ -81,10 +81,13 @@ class ReadArticeService(ReadArticleInPort):
         article_with_author = (
             await self._read_article_out_port.read_article_by_id_with_author(id)
         )
+
         if not article_with_author:
             raise HTTPException(
                 status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
             )
+
+        _article_in_db_sanity_check(article_with_author.article)
 
         return ReadArticleResponse(
             title=article_with_author.article.title,
@@ -111,7 +114,7 @@ class ReadArticeService(ReadArticleInPort):
                 SingleArticleInList(
                     id=element.article.id,
                     title=element.article.title,
-                    author_name=element.author.name,
+                    author_name=element.author.username,
                     created_at=element.article.created_at,
                     updated_at=element.article.created_at,
                 )

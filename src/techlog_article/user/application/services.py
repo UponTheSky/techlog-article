@@ -16,9 +16,9 @@ from .port.in_ import (
 from .port.out import (
     CheckUserPort,
     CreateUserDTO,
-    CreateUserPort,
+    CreateUserAuthPort,
     UpdateUserDTO,
-    UpdateUserPort,  # noqa: F401
+    UpdateUserPort,
     DeleteUserAuthPort,
 )
 
@@ -41,10 +41,12 @@ class SignUpService(SignUpPort):
         self,
         *,
         check_user_port: Annotated[CheckUserPort, Depends(UserPersistenceAdapter)],
-        create_user_port: Annotated[CreateUserPort, Depends(UserPersistenceAdapter)]
+        create_user_auth_port: Annotated[
+            CreateUserAuthPort, Depends(UserAuthPersistenceAdapter)
+        ]
     ):
         self._check_user_port = check_user_port
-        self._create_user_port = create_user_port
+        self._create_user_port = create_user_auth_port
 
     async def sign_up(self, *, dto: SignUpDTO) -> None:
         if await _userinfo_exists(
@@ -57,7 +59,7 @@ class SignUpService(SignUpPort):
                 detail="A user with the same username or email already exists",
             )
 
-        await self._create_user_port.create_user(
+        await self._create_user_port.create_user_with_auth(
             dto=CreateUserDTO(
                 username=dto.username,
                 hashed_password=hash_password(password=dto.password),
@@ -93,22 +95,19 @@ class UpdateAccountService(UpdateAccountPort):
         self._check_user_port = check_user_port
         self._update_user_port = update_user_port
 
-    async def update_account(self, *, dto: UpdateAccountDTO) -> None:
-        if await _userinfo_exists(
-            check_user_port=self._check_user_port,
-            username=dto.username,
-            email=dto.email,
-        ):
+    async def update_account(self, *, user_id: UUID, dto: UpdateAccountDTO) -> None:
+        user_in_db = await self._update_user_port.read_user_by_id(user_id=user_id)
+
+        if not user_in_db:
             raise HTTPException(
-                status_code=HTTPStatus.HTTP_400_BAD_REQUEST,
-                detail="A user with the same username or email already exists",
+                status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="User not found"
             )
 
         if dto.password:
             dto.password = hash_password(dto.password)
 
         await self._update_user_port.update_user(
-            user_id=dto.user_id,
+            user_id=user_id,
             dto=UpdateUserDTO(**UpdateAccountDTO.dict(exclude_none=True)),
         )
 

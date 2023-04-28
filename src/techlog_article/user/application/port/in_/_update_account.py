@@ -13,9 +13,8 @@ from ._validation_helpers import (
 
 
 class UpdateAccountDTO(BaseModel):
-    """The optional version of SignUpDTO, with user_id added"""
+    """The optional version of SignUpDTO"""
 
-    user_id: UUID
     username: Optional[str]
     email: Optional[str]
     password: Optional[str]
@@ -42,10 +41,10 @@ class UpdateAccountDTO(BaseModel):
         return match_passwords(target=v, source=source_password)
 
     class Config:
-        description = "An optional version of SignUpDTO, with user_id added"
+        description = "An optional version of SignUpDTO"
 
 
 class UpdateAccountPort(ABC):
     @abstractmethod
-    async def update_account(self, *, dto: UpdateAccountDTO) -> None:
+    async def update_account(self, *, user_id: UUID, dto: UpdateAccountDTO) -> None:
         ...

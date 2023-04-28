@@ -48,7 +48,9 @@ class ArticleUserRepository:
         return (await self._db_session.scalars(stmt)).all()
 
     async def get_total_articles_count(self) -> int:
-        stmt = select(func.count(models.Article.id))
+        stmt = select(func.count(models.Article.id)).where(
+            models.Article.deleted_at is None
+        )
         result = await self._db_session.scalar(stmt)
 
         return result if result else 0
