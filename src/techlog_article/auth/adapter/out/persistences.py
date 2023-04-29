@@ -3,10 +3,10 @@ from uuid import UUID
 
 from fastapi import Depends
 
-from user.domain.user import User
+from src.techlog_article.user import User
 
-from domain.auth import Auth
-from application.port.out import (
+from ...domain import Auth
+from ...application.port.out import (
     ReadUserPort,
     UpdateAuthDTO,
     UpdateAuthPort,
@@ -36,8 +36,8 @@ class AuthPersistenceAdapter(UpdateAuthPort, ReadAuthPort):
         auth_orm = await self._auth_repository.read_by_user_id(user_id)
         return Auth.from_orm(auth_orm) if auth_orm else None
 
-    async def update_auth(self, *, dto: UpdateAuthDTO) -> None:
-        auth_orm = await self._auth_repository.read_by_user_id(dto.user_id)
+    async def update_auth(self, *, user_id: UUID, dto: UpdateAuthDTO) -> None:
+        auth_orm = await self._auth_repository.read_by_user_id(user_id)
         await self._auth_repository.update(
-            orm=auth_orm, dao=dto.dict(exclude={"id", "user_id"})
+            orm=auth_orm, dao=dto.dict(exclude_unset=True)
         )

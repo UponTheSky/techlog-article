@@ -2,18 +2,17 @@ from typing import Annotated, Optional
 
 from fastapi import APIRouter, status, Form, Depends
 
-from common.tags import Tags
-from auth.application.services import CurrentUserIdDependency
+from src.techlog_article.common.tags import Tags
+from src.techlog_article.auth import CurrentUserIdDependency
 
-from application.port.in_ import (
+from ...application.port.in_ import (
     SignUpDTO,
     SignUpPort,
     SignOutPort,
     UpdateAccountDTO,
     UpdateAccountPort,
 )
-from application.services import SignUpService, SignOutService
-from techlog_article.user.application.services import UpdateAccountService
+from ...application.services import SignUpService, SignOutService, UpdateAccountService
 
 router = APIRouter(
     prefix="/user",

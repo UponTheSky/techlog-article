@@ -12,7 +12,7 @@ class BaseConfig(BaseSettings):
     DB_URL: str
 
 
-class AuthConfig(BaseSettings):
+class AuthBaseConfig(BaseSettings):
     JWT_ENCODE_ALGORITHM: str
     PASSWORD_HASH_ALGORITHM: str
     JWT_SECRET_KEY: str
@@ -28,6 +28,14 @@ class DevelopmentConfig(BaseConfig):
     DB_URL = "postgresql+asyncpg://db_admin:1Q2w3e4r!@localhost:5432/techlog_article"
 
 
+class AuthDevelopmentConfig(BaseSettings):
+    JWT_ENCODE_ALGORITHM: str = "HMAC"
+    PASSWORD_HASH_ALGORITHM: str = "sha256_crypt"
+    JWT_SECRET_KEY: str = "test"
+    ACCESS_TOKEN_EXPRIRES_IN: int = 3600
+    ADMIN_USERNAME: str = "test"
+
+
 def get_config() -> Union[BaseConfig, DevelopmentConfig]:
     env = os.getenv("ENV", "development")
     config_type = {"development": DevelopmentConfig()}
@@ -35,8 +43,11 @@ def get_config() -> Union[BaseConfig, DevelopmentConfig]:
     return config_type[env]
 
 
-def get_auth_config() -> AuthConfig:
-    return AuthConfig()
+def get_auth_config() -> Union[AuthBaseConfig, AuthDevelopmentConfig]:
+    env = os.getenv("ENV", "development")
+    config_type = {"development": AuthDevelopmentConfig()}
+
+    return config_type[env]
 
 
 config = get_config()

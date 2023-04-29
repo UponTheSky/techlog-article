@@ -15,12 +15,12 @@ from ._validation_helpers import (
 class UpdateAccountDTO(BaseModel):
     """The optional version of SignUpDTO"""
 
-    username: Optional[str]
-    email: Optional[str]
-    password: Optional[str]
-    password_recheck: Optional[str]
+    username: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    password_recheck: Optional[str] = None
 
-    @validator("name")
+    @validator("username")
     def username_is_valid(cls, v):
         return validate_username(username=v) if v else None
 

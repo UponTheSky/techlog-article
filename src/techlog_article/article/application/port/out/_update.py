@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from domain.article import Article
+from ....domain import Article
 
 
 class UpdateArticleOutDTO(BaseModel):

@@ -3,11 +3,10 @@ from uuid import UUID
 
 from fastapi import Depends, HTTPException, status as HTTPStatus
 
-from ..domain.article import Article
+from ..domain import Article
 
 from .port.in_ import (
     CreateArticleInDTO,
-    CreateArticleInPort,
     ReadArticleInPort,
     ReadArticleResponse,
     ReadArticleListInDTO,
@@ -32,27 +31,30 @@ from ..adapter.out.persistences import (
 )
 
 
-def _article_in_db_sanity_check(
-    *, article_in_db: Optional[Article], author_id: UUID
-) -> None:
-    if not article_in_db:
-        raise HTTPException(
-            status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
-        )
+class ArticleInDBSanityCheckMixin:
+    @staticmethod
+    def _article_in_db_sanity_check(
+        *, article_in_db: Optional[Article], author_id: UUID
+    ) -> None:
+        if not article_in_db:
+            raise HTTPException(
+                status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
+            )
 
-    if article_in_db.author_id != author_id:
-        raise HTTPException(
-            status_code=HTTPStatus.HTTP_403_FORBIDDEN,
-            detail="The user doesn't have the permission to modify this content",
-        )
+        if article_in_db.author_id != author_id:
+            raise HTTPException(
+                status_code=HTTPStatus.HTTP_403_FORBIDDEN,
+                detail="The user doesn't have the permission to modify this content",
+            )
 
-    return None
+        return None
 
 
 @final
-class CreateArticleService(CreateArticleInPort):
+class CreateArticleService(CreateArticleOutPort):
     def __init__(
         self,
+        *,
         create_article_out_port: Annotated[
             CreateArticleOutPort, Depends(ArticleUserPersistenceAdapter)
         ],
@@ -71,11 +73,12 @@ class CreateArticleService(CreateArticleInPort):
 class ReadArticeService(ReadArticleInPort):
     def __init__(
         self,
-        read_article_port: Annotated[
+        *,
+        read_article_out_port: Annotated[
             ReadArticleOutPort, Depends(ArticleUserPersistenceAdapter)
         ],
     ):
-        self._read_article_out_port = read_article_port
+        self._read_article_out_port = read_article_out_port
 
     async def read_article_by_id(self, id: UUID) -> ReadArticleResponse:
         article_with_author = (
@@ -86,8 +89,6 @@ class ReadArticeService(ReadArticleInPort):
             raise HTTPException(
                 status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
             )
-
-        _article_in_db_sanity_check(article_with_author.article)
 
         return ReadArticleResponse(
             title=article_with_author.article.title,
@@ -124,13 +125,13 @@ class ReadArticeService(ReadArticleInPort):
 
 
 @final
-class UpdateArticeService(UpdateArticleInPort):
+class UpdateArticeService(UpdateArticleInPort, ArticleInDBSanityCheckMixin):
     def __init__(
         self,
         *,
         update_article_out_port: Annotated[
             UpdateArticleOutPort, Depends(ArticlePersistenceAdapter)
-        ]
+        ],
     ):
         self._update_article_out_port = update_article_out_port
 
@@ -141,7 +142,9 @@ class UpdateArticeService(UpdateArticleInPort):
             article_id
         )
 
-        _article_in_db_sanity_check(article_in_db=article_in_db, author_id=author_id)
+        self._article_in_db_sanity_check(
+            article_in_db=article_in_db, author_id=author_id
+        )
 
         await self._update_article_out_port.update_article(
             article_id=article_id,
@@ -152,13 +155,13 @@ class UpdateArticeService(UpdateArticleInPort):
 
 
 @final
-class DeleteArticleService(DeleteArticleInPort):
+class DeleteArticleService(DeleteArticleInPort, ArticleInDBSanityCheckMixin):
     def __init__(
         self,
         *,
         delete_article_out_port: Annotated[
             DeleteArticleOutPort, Depends(ArticlePersistenceAdapter)
-        ]
+        ],
     ):
         self._delete_article_out_port = delete_article_out_port
 
@@ -167,7 +170,9 @@ class DeleteArticleService(DeleteArticleInPort):
             article_id
         )
 
-        _article_in_db_sanity_check(article_in_db=article_in_db, author_id=author_id)
+        self._article_in_db_sanity_check(
+            article_in_db=article_in_db, author_id=author_id
+        )
 
         await self._delete_article_out_port.delete_article(article_id=article_id)
 

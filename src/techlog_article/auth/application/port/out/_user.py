@@ -1,7 +1,7 @@
 from typing import Optional
 from abc import ABC, abstractmethod
 
-from user.domain.user import User
+from src.techlog_article.user import User
 
 
 class ReadUserPort(ABC):

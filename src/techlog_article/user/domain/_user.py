@@ -11,8 +11,11 @@ class User(BaseModel):
     hashed_password: str = Field(description="Store the hashed value of the password")
     email: str
 
+    created_at: datetime
+    updated_at: Optional[datetime] = None
     deleted_at: Optional[datetime] = Field(
-        description="This is for checking whether the user data is deleted(signed out)"
+        default=None,
+        description="This is for checking whether the user data is deleted(signed out)",
     )
 
     class Config:

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from ....domain.user import User
+from ....domain import User
 
 
 class UpdateUserDTO(BaseModel):

@@ -8,7 +8,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 class Base(DeclarativeBase):
     # default fields for every orm object
-    created_at: Mapped[datetime] = mapped_column(server_defuault=func.now())
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[Optional[datetime]] = mapped_column(
         default=None, onupdate=func.now()
     )

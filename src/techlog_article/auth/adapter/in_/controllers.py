@@ -3,11 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, status as HTTPStatus, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from common.utils.jwt import JWTToken
-from common.tags import Tags
+from src.techlog_article.common.utils.jwt import JWTToken
+from src.techlog_article.common.tags import Tags
 
-from application.port.in_ import LoginPort, LoginDTO, LogoutPort
-from application.services import LoginService, LogoutService, CurrentUserIdDependency
+from ...application.port.in_ import LoginPort, LoginDTO, LogoutPort
+from ...application.services import LoginService, LogoutService, CurrentUserIdDependency
 
 router = APIRouter(
     prefix="/auth",

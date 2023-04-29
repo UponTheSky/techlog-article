@@ -4,20 +4,20 @@ from uuid import UUID
 from fastapi import HTTPException, status as HTTPStatus, Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from common.config import auth_config
-from common.utils.datetime import get_now_utc_timestamp
-from common.utils.jwt import (
+from src.techlog_article.common.config import auth_config
+from src.techlog_article.common.utils.datetime import get_now_utc_timestamp
+from src.techlog_article.common.utils.jwt import (
     create_token as create_jwt_token,
     JWTToken,
     JWTError,
     decode_token as decode_jwt_token,
 )
-from common.utils.password import verify_password
+from src.techlog_article.common.utils.password import verify_password
 
 from .port.in_ import LoginDTO, LoginPort, LogoutPort
 from .port.out import ReadUserPort, UpdateAuthDTO, UpdateAuthPort, ReadAuthPort
 
-from adapter.out.persistences import UserPersistenceAdapter, AuthPersistenceAdapter
+from ..adapter.out.persistences import UserPersistenceAdapter, AuthPersistenceAdapter
 
 
 @final
@@ -31,17 +31,20 @@ class AuthTokenCheckService:
 
     async def __call__(
         self,
+        *,
         token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="auth/login"))],
     ) -> UUID:
         try:
-            payload = decode_jwt_token(token)
+            payload = self._decode_token(token)
 
             # check the user's id
-            user_id = UUID(payload.get("sub"))
+            user_id = payload.get("sub")
 
             # invalid case 1: invalid token
             if not user_id:
                 raise self.get_credentials_exception("Could not validate credentials")
+
+            user_id = UUID(user_id)
 
             # invalid case 2: expired token
             expired_at = int(payload.get("exp"))
@@ -67,7 +70,7 @@ class AuthTokenCheckService:
 
             return user_id
 
-        except JWTError:
+        except (JWTError, ValueError):
             raise self.get_credentials_exception(
                 "Token error: Could not validate credentials"
             )
@@ -80,8 +83,12 @@ class AuthTokenCheckService:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    @staticmethod
+    def _decode_token(*, token: str) -> dict[str, str]:
+        return decode_jwt_token(token)
 
-CurrentUserIdDependency = Annotated[UUID, Depends(AuthTokenCheckService())]
+
+CurrentUserIdDependency = Annotated[UUID, Annotated[AuthTokenCheckService, Depends()]]
 
 
 @final
@@ -115,7 +122,7 @@ class LoginService(LoginPort):
         )
 
         await self._update_auth_port.update_auth(
-            dto=UpdateAuthDTO(user_id=user_in_db.id, access_token=access_token)
+            user_id=user_in_db.id, dto=UpdateAuthDTO(access_token=access_token)
         )
 
         return access_token
@@ -146,6 +153,6 @@ class LogoutService(LogoutPort):
 
     async def logout(self, *, user_id: UUID) -> None:
         await self._update_auth_port.update_auth(
-            dto=UpdateAuthDTO(user_id=user_id, access_token=None)
+            user_id=user_id, dto=UpdateAuthDTO(access_token=None)
         )
         return None
