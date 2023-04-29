@@ -2,7 +2,7 @@ from typing import Optional
 from abc import ABC, abstractmethod
 from uuid import UUID
 
-from domain.article import Article
+from ....domain import Article
 
 
 class DeleteArticleOutPort(ABC):

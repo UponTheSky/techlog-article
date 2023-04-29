@@ -5,7 +5,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, validator
 
-from domain.article import Article
+from ....domain import Article
 
 
 class ReadArticleResponse(BaseModel):

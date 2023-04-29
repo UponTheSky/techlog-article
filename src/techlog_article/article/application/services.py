@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import Depends, HTTPException, status as HTTPStatus
 
-from ..domain.article import Article
+from ..domain import Article
 
 from .port.in_ import (
     CreateArticleInDTO,
@@ -86,8 +86,6 @@ class ReadArticeService(ReadArticleInPort):
             raise HTTPException(
                 status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
             )
-
-        _article_in_db_sanity_check(article_with_author.article)
 
         return ReadArticleResponse(
             title=article_with_author.article.title,

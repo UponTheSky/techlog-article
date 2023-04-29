@@ -5,7 +5,7 @@ from fastapi import Depends
 
 from src.techlog_article.user import User
 
-from ...domain.article import Article
+from ...domain import Article
 from ...application.port.out import (
     CreateArticleOutDTO,
     CreateArticleOutPort,
@@ -75,7 +75,9 @@ class ArticlePersistenceAdapter(UpdateArticleOutPort, DeleteArticleOutPort):
     async def update_article(
         self, *, article_id: UUID, dto: UpdateArticleOutDTO
     ) -> None:
-        self._article_repository.update_article(article_id=article_id, dao=dto.dict())
+        self._article_repository.update_article(
+            article_id=article_id, dao=dto.dict(exclude_unset=True)
+        )
 
     async def delete_article(self, *, article_id: UUID) -> None:
         return await self._article_repository.delete_article(article_id=article_id)

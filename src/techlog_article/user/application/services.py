@@ -3,8 +3,11 @@ from uuid import UUID
 
 from fastapi import status as HTTPStatus, HTTPException, Depends
 
-from common.utils.password import hash_password
-from adapter.out.persistences import UserPersistenceAdapter, UserAuthPersistenceAdapter
+from src.techlog_article.common.utils.password import hash_password
+from ..adapter.out.persistences import (
+    UserPersistenceAdapter,
+    UserAuthPersistenceAdapter,
+)
 
 from .port.in_ import (
     SignUpDTO,
@@ -103,12 +106,12 @@ class UpdateAccountService(UpdateAccountPort):
                 status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="User not found"
             )
 
-        if dto.password:
-            dto.password = hash_password(dto.password)
-
-        await self._update_user_port.update_user(
-            user_id=user_id,
-            dto=UpdateUserDTO(**UpdateAccountDTO.dict(exclude_none=True)),
+        update_user_dto = UpdateUserDTO(
+            **UpdateAccountDTO.dict(exclude_unset=True, exclude="password")
         )
+        if dto.password:
+            update_user_dto.hashed_password = hash_password(dto.password)
+
+        await self._update_user_port.update_user(user_id=user_id, dto=update_user_dto)
 
         return None

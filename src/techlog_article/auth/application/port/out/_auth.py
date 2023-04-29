@@ -4,17 +4,16 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from domain.auth import Auth
+from ....domain import Auth
 
 
 class UpdateAuthDTO(BaseModel):
-    user_id: UUID
     access_token: Optional[str]
 
 
 class UpdateAuthPort(ABC):
     @abstractmethod
-    async def update_auth(self, *, dto: UpdateAuthDTO) -> None:
+    async def update_auth(self, *, user_id: UUID, dto: UpdateAuthDTO) -> None:
         ...
 
 

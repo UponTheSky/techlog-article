@@ -1,3 +1,3 @@
-from .domain.user import User
+from .domain import User
 
 __all__ = ["User"]

@@ -3,8 +3,8 @@ from uuid import UUID
 
 from sqlalchemy import select
 
-from common.database import CurrentDBSessionDependency, models
-from common.utils.datetime import get_now_utc_timestamp
+from src.techlog_article.common.database import CurrentDBSessionDependency, models
+from src.techlog_article.common.utils.datetime import get_now_utc_timestamp
 
 
 @final
