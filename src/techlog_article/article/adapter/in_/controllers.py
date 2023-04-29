@@ -23,7 +23,7 @@ from ...application.services import (
 
 from ...application.port.in_ import (
     CreateArticleInDTO,
-    CreateArticleInPort,
+    CreateArticleOutPort,
     ReadArticleListInDTO,
     ReadArticleInPort,
     ReadArticleResponse,
@@ -50,7 +50,7 @@ async def create_article(
     author_id: CurrentUserIdDependency,
     body: CreateArticleBody = Body(),
     create_article_service: Annotated[
-        CreateArticleInPort, Depends(CreateArticleService)
+        CreateArticleOutPort, Depends(CreateArticleService)
     ],
 ) -> None:
     await create_article_service.create_article(

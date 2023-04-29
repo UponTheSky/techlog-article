@@ -7,7 +7,6 @@ from ..domain import Article
 
 from .port.in_ import (
     CreateArticleInDTO,
-    CreateArticleInPort,
     ReadArticleInPort,
     ReadArticleResponse,
     ReadArticleListInDTO,
@@ -50,9 +49,10 @@ def _article_in_db_sanity_check(
 
 
 @final
-class CreateArticleService(CreateArticleInPort):
+class CreateArticleService(CreateArticleOutPort):
     def __init__(
         self,
+        *,
         create_article_out_port: Annotated[
             CreateArticleOutPort, Depends(ArticleUserPersistenceAdapter)
         ],
@@ -71,11 +71,12 @@ class CreateArticleService(CreateArticleInPort):
 class ReadArticeService(ReadArticleInPort):
     def __init__(
         self,
-        read_article_port: Annotated[
+        *,
+        read_article_out_port: Annotated[
             ReadArticleOutPort, Depends(ArticleUserPersistenceAdapter)
         ],
     ):
-        self._read_article_out_port = read_article_port
+        self._read_article_out_port = read_article_out_port
 
     async def read_article_by_id(self, id: UUID) -> ReadArticleResponse:
         article_with_author = (
@@ -128,7 +129,7 @@ class UpdateArticeService(UpdateArticleInPort):
         *,
         update_article_out_port: Annotated[
             UpdateArticleOutPort, Depends(ArticlePersistenceAdapter)
-        ]
+        ],
     ):
         self._update_article_out_port = update_article_out_port
 
@@ -156,7 +157,7 @@ class DeleteArticleService(DeleteArticleInPort):
         *,
         delete_article_out_port: Annotated[
             DeleteArticleOutPort, Depends(ArticlePersistenceAdapter)
-        ]
+        ],
     ):
         self._delete_article_out_port = delete_article_out_port
 

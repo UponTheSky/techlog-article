@@ -8,7 +8,7 @@ from pydantic import BaseModel
 class Article(BaseModel):
     id: UUID
     title: str
-    content: str
+    content: Optional[str] = None
     author_id: UUID
 
     created_at: datetime

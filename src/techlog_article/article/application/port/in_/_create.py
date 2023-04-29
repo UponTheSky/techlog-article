@@ -13,7 +13,7 @@ class CreateArticleInDTO(BaseModel):
     author_id: UUID = Field(description="A user's user_id(=User.id)")
 
 
-class CreateArticleInPort(ABC):
+class CreateArticleOutPort(ABC):
     @abstractmethod
     async def create_article(self, *, dto: CreateArticleInDTO) -> None:
         ...

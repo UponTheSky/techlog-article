@@ -1,4 +1,4 @@
-from ._create import CreateArticleInDTO, CreateArticleInPort
+from ._create import CreateArticleInDTO, CreateArticleOutPort
 from ._read import (
     ReadArticleInPort,
     ReadArticleResponse,
@@ -11,7 +11,7 @@ from ._delete import DeleteArticleInPort
 
 __all__ = [
     "CreateArticleInDTO",
-    "CreateArticleInPort",
+    "CreateArticleOutPort",
     "ReadArticleInPort",
     "ReadArticleResponse",
     "ReadArticleListInDTO",
