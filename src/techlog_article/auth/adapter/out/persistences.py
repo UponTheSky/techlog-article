@@ -6,7 +6,7 @@ from fastapi import Depends
 from src.techlog_article.user import User
 
 from ...domain import Auth
-from application.port.out import (
+from ...application.port.out import (
     ReadUserPort,
     UpdateAuthDTO,
     UpdateAuthPort,

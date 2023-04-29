@@ -31,17 +31,20 @@ class AuthTokenCheckService:
 
     async def __call__(
         self,
+        *,
         token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="auth/login"))],
     ) -> UUID:
         try:
-            payload = decode_jwt_token(token)
+            payload = self._decode_token(token)
 
             # check the user's id
-            user_id = UUID(payload.get("sub"))
+            user_id = payload.get("sub")
 
             # invalid case 1: invalid token
             if not user_id:
                 raise self.get_credentials_exception("Could not validate credentials")
+
+            user_id = UUID(user_id)
 
             # invalid case 2: expired token
             expired_at = int(payload.get("exp"))
@@ -67,7 +70,7 @@ class AuthTokenCheckService:
 
             return user_id
 
-        except JWTError:
+        except (JWTError, ValueError):
             raise self.get_credentials_exception(
                 "Token error: Could not validate credentials"
             )
@@ -80,8 +83,12 @@ class AuthTokenCheckService:
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    @staticmethod
+    def _decode_token(*, token: str) -> dict[str, str]:
+        return decode_jwt_token(token)
 
-CurrentUserIdDependency = Annotated[UUID, Depends(AuthTokenCheckService())]
+
+CurrentUserIdDependency = Annotated[UUID, Annotated[AuthTokenCheckService, Depends()]]
 
 
 @final

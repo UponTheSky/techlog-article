@@ -1,4 +1,4 @@
-from typing import Literal, Any
+from typing import Literal
 from uuid import UUID
 
 from jose import jwt, JWTError  # noqa: F401
@@ -37,7 +37,7 @@ def create_token(*, user_id: UUID, expiry: int, is_admin: bool = False) -> JWTTo
     )
 
 
-def decode_token(token: str) -> dict[str, Any]:
+def decode_token(token: str) -> dict[str, str]:
     return jwt.decode(
         token=token,
         key=auth_config.JWT_SECRET_KEY,
