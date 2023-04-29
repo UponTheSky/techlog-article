@@ -28,7 +28,7 @@ def service() -> UpdateArticeService:
     "dto_kwargs",
     [{"content": "hey"}, {"title": "hey"}, {"title": "hey", "content": "hey"}],
 )
-async def test_update_passes_only_set_values(
+async def test_passes_only_values_set(
     service: UpdateArticeService, dto_kwargs: dict[str, Any]
 ):
     article_id, author_id = uuid4(), uuid4()
@@ -59,7 +59,9 @@ async def test_update_passes_only_set_values(
 
 
 @pytest.mark.asyncio
-async def test_only_author_can_update_article(service: UpdateArticeService):
+async def test_raises_403_when_updated_by_other_user_than_its_owner(
+    service: UpdateArticeService,
+):
     """
     Remark: the behavior of the delete service also matches
     what this test tries to check

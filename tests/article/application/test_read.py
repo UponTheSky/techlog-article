@@ -21,7 +21,7 @@ def service() -> ReadArticeService:
 
 
 @pytest.mark.asyncio
-async def test_when_article_is_not_found(service: ReadArticeService):
+async def test_rasies_404_when_article_is_not_found(service: ReadArticeService):
     with (
         mock.patch.object(
             service._read_article_out_port,
@@ -36,7 +36,7 @@ async def test_when_article_is_not_found(service: ReadArticeService):
 
 
 @pytest.mark.asyncio
-async def test_reading_list_call_both_list_and_count(service: ReadArticeService):
+async def test_call_both_list_and_count_when_reading_list(service: ReadArticeService):
     with (
         mock.patch.object(
             service._read_article_out_port, "read_article_list"

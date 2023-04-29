@@ -19,7 +19,7 @@ class SignUpDTO(BaseModel):
             make a unrecognizable password"
     )
 
-    @validator("name")
+    @validator("username")
     def username_is_valid(cls, v):
         return validate_username(username=v)
 

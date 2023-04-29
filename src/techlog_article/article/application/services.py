@@ -31,21 +31,23 @@ from ..adapter.out.persistences import (
 )
 
 
-def _article_in_db_sanity_check(
-    *, article_in_db: Optional[Article], author_id: UUID
-) -> None:
-    if not article_in_db:
-        raise HTTPException(
-            status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
-        )
+class ArticleInDBSanityCheckMixin:
+    @staticmethod
+    def _article_in_db_sanity_check(
+        *, article_in_db: Optional[Article], author_id: UUID
+    ) -> None:
+        if not article_in_db:
+            raise HTTPException(
+                status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
+            )
 
-    if article_in_db.author_id != author_id:
-        raise HTTPException(
-            status_code=HTTPStatus.HTTP_403_FORBIDDEN,
-            detail="The user doesn't have the permission to modify this content",
-        )
+        if article_in_db.author_id != author_id:
+            raise HTTPException(
+                status_code=HTTPStatus.HTTP_403_FORBIDDEN,
+                detail="The user doesn't have the permission to modify this content",
+            )
 
-    return None
+        return None
 
 
 @final
@@ -123,7 +125,7 @@ class ReadArticeService(ReadArticleInPort):
 
 
 @final
-class UpdateArticeService(UpdateArticleInPort):
+class UpdateArticeService(UpdateArticleInPort, ArticleInDBSanityCheckMixin):
     def __init__(
         self,
         *,
@@ -140,7 +142,9 @@ class UpdateArticeService(UpdateArticleInPort):
             article_id
         )
 
-        _article_in_db_sanity_check(article_in_db=article_in_db, author_id=author_id)
+        self._article_in_db_sanity_check(
+            article_in_db=article_in_db, author_id=author_id
+        )
 
         await self._update_article_out_port.update_article(
             article_id=article_id,
@@ -151,7 +155,7 @@ class UpdateArticeService(UpdateArticleInPort):
 
 
 @final
-class DeleteArticleService(DeleteArticleInPort):
+class DeleteArticleService(DeleteArticleInPort, ArticleInDBSanityCheckMixin):
     def __init__(
         self,
         *,
@@ -166,7 +170,9 @@ class DeleteArticleService(DeleteArticleInPort):
             article_id
         )
 
-        _article_in_db_sanity_check(article_in_db=article_in_db, author_id=author_id)
+        self._article_in_db_sanity_check(
+            article_in_db=article_in_db, author_id=author_id
+        )
 
         await self._delete_article_out_port.delete_article(article_id=article_id)
 

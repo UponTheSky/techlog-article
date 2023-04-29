@@ -22,11 +22,11 @@ class UserPersistenceAdapter(CheckUserPort, UpdateUserPort):
     def __init__(self, *, user_repository: Annotated[UserRepository, Depends()]):
         self._user_repository = user_repository
 
-    async def check_by_username(self, username: str) -> Optional[User]:
+    async def check_exists_by_username(self, username: str) -> Optional[User]:
         user_orm = await self._user_repository.read_by_username(username)
         return user_orm is not None
 
-    async def check_by_email(self, email: str) -> Optional[User]:
+    async def check_exists_by_email(self, email: str) -> Optional[User]:
         user_orm = await self._user_repository.read_by_email(email)
         return user_orm is not None
 
