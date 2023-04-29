@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, final
 from uuid import UUID
 
 from fastapi import HTTPException, status as HTTPStatus, Depends
@@ -20,6 +20,7 @@ from .port.out import ReadUserPort, UpdateAuthDTO, UpdateAuthPort, ReadAuthPort
 from adapter.out.persistences import UserPersistenceAdapter, AuthPersistenceAdapter
 
 
+@final
 class AuthTokenCheckService:
     def __init__(
         self,
@@ -46,20 +47,23 @@ class AuthTokenCheckService:
             expired_at = int(payload.get("exp"))
             if expired_at < get_now_utc_timestamp():
                 raise self.get_credentials_exception("The token has expired")
-
-            auth_in_db = await self._read_auth_port.read_auth_by_user_id(
-                user_id=user_id
-            )
+            """
+            Remark: The parts involving the DB will be available after
+            adding the Redis cache layer afterward
+            """
+            # auth_in_db = await self._read_auth_port.read_auth_by_user_id(
+            #     user_id=user_id
+            # )
 
             # invalid case 3: the user not is not in the DB or deleted
-            if not auth_in_db or auth_in_db.deleted_at:
-                raise self.get_credentials_exception("The user doesn't exist anymore")
+            # if not auth_in_db or auth_in_db.deleted_at:
+            #     raise self.get_credentials_exception("The user doesn't exist anymore")
 
             # invalid case 4: the token is stale(the user logged out before)
-            if not auth_in_db.access_token:
-                raise self.get_credentials_exception(
-                    "The token is stale: the user must re-login"
-                )
+            # if not auth_in_db.access_token:
+            #     raise self.get_credentials_exception(
+            #         "The token is stale: the user must re-login"
+            #     )
 
             return user_id
 
@@ -80,6 +84,7 @@ class AuthTokenCheckService:
 CurrentUserIdDependency = Annotated[UUID, Depends(AuthTokenCheckService())]
 
 
+@final
 class LoginService(LoginPort):
     def __init__(
         self,
@@ -91,7 +96,9 @@ class LoginService(LoginPort):
         self._update_auth_port = update_auth_port
 
     async def login(self, *, login_dto: LoginDTO) -> JWTToken:
-        user_in_db = await self._read_user_port.read_user(username=login_dto.username)
+        user_in_db = await self._read_user_port.read_user_by_name(
+            username=login_dto.username
+        )
         if not user_in_db:
             raise HTTPException(
                 status_code=HTTPStatus.HTTP_404_NOT_FOUND,
@@ -128,6 +135,7 @@ class LoginService(LoginPort):
         )
 
 
+@final
 class LogoutService(LogoutPort):
     def __init__(
         self,

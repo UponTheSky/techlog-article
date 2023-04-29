@@ -3,10 +3,10 @@ from uuid import UUID
 
 from fastapi import Depends
 
-from user.domain.user import User
+from src.techlog_article.user import User
 
-from domain.article import Article
-from application.port.out import (
+from ...domain.article import Article
+from ...application.port.out import (
     CreateArticleOutDTO,
     CreateArticleOutPort,
     ReadArticleOutPort,

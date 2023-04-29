@@ -11,17 +11,17 @@ from fastapi import (
     HTTPException,
 )
 
-from common.tags import Tags
-from auth.application.services import CurrentUserIdDependency
+from src.techlog_article.common.tags import Tags
+from src.techlog_article.auth import CurrentUserIdDependency
 
-from application.services import (
+from ...application.services import (
     CreateArticleService,
     ReadArticeService,
     UpdateArticeService,
     DeleteArticleService,
 )
 
-from application.port.in_ import (
+from ...application.port.in_ import (
     CreateArticleInDTO,
     CreateArticleInPort,
     ReadArticleListInDTO,

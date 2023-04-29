@@ -3,13 +3,7 @@ from uuid import UUID
 
 from fastapi import Depends, HTTPException, status as HTTPStatus
 
-from user.domain.user import User
-
-from domain.article import Article
-from adapter.out.persistences import (
-    ArticleUserPersistenceAdapter,
-    ArticlePersistenceAdapter,
-)
+from ..domain.article import Article
 
 from .port.in_ import (
     CreateArticleInDTO,
@@ -17,6 +11,7 @@ from .port.in_ import (
     ReadArticleInPort,
     ReadArticleResponse,
     ReadArticleListInDTO,
+    SingleArticleInList,
     ReadArticleListResponse,
     UpdateArticleInDTO,
     UpdateArticleInPort,
@@ -30,6 +25,28 @@ from .port.out import (
     UpdateArticleOutPort,
     DeleteArticleOutPort,
 )
+
+from ..adapter.out.persistences import (
+    ArticleUserPersistenceAdapter,
+    ArticlePersistenceAdapter,
+)
+
+
+def _article_in_db_sanity_check(
+    *, article_in_db: Optional[Article], author_id: UUID
+) -> None:
+    if not article_in_db:
+        raise HTTPException(
+            status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
+        )
+
+    if article_in_db.author_id != author_id:
+        raise HTTPException(
+            status_code=HTTPStatus.HTTP_403_FORBIDDEN,
+            detail="The user doesn't have the permission to modify this content",
+        )
+
+    return None
 
 
 @final
@@ -60,15 +77,25 @@ class ReadArticeService(ReadArticleInPort):
     ):
         self._read_article_out_port = read_article_port
 
-    async def read_article_by_id(self, id: UUID) -> Optional[ReadArticleResponse]:
+    async def read_article_by_id(self, id: UUID) -> ReadArticleResponse:
         article_with_author = (
             await self._read_article_out_port.read_article_by_id_with_author(id)
         )
-        if not article_with_author:
-            return None
 
-        return self._make_read_article_response(
-            article=article_with_author.article, author=article_with_author.author
+        if not article_with_author:
+            raise HTTPException(
+                status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
+            )
+
+        _article_in_db_sanity_check(article_with_author.article)
+
+        return ReadArticleResponse(
+            title=article_with_author.article.title,
+            content=article_with_author.article.content,
+            author_name=article_with_author.author.username,
+            author_email=article_with_author.author.email,
+            created_at=article_with_author.article.created_at,
+            updated_at=article_with_author.article.updated_at,
         )
 
     async def read_article_list(
@@ -84,22 +111,15 @@ class ReadArticeService(ReadArticleInPort):
         return ReadArticleListResponse(
             total_articles_count=total_articles_count,
             article_list=[
-                ReadArticleResponse(article=element.article, author=element.author)
+                SingleArticleInList(
+                    id=element.article.id,
+                    title=element.article.title,
+                    author_name=element.author.username,
+                    created_at=element.article.created_at,
+                    updated_at=element.article.created_at,
+                )
                 for element in articles_with_authors
             ],
-        )
-
-    @staticmethod
-    def _make_read_article_response(
-        *, article: Article, author: User
-    ) -> ReadArticleResponse:
-        return ReadArticleResponse(
-            title=article.title,
-            content=article.content,
-            author_name=author.username,
-            author_email=author.email,
-            created_at=article.created_at,
-            updated_at=article.updated_at,
         )
 
 
@@ -121,16 +141,7 @@ class UpdateArticeService(UpdateArticleInPort):
             article_id
         )
 
-        if not article_in_db:
-            raise HTTPException(
-                status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
-            )
-
-        if article_in_db.author_id != author_id:
-            raise HTTPException(
-                status_code=HTTPStatus.HTTP_403_FORBIDDEN,
-                detail="The user doesn't have the permission to modify this content",
-            )
+        _article_in_db_sanity_check(article_in_db=article_in_db, author_id=author_id)
 
         await self._update_article_out_port.update_article(
             article_id=article_id,
@@ -156,16 +167,7 @@ class DeleteArticleService(DeleteArticleInPort):
             article_id
         )
 
-        if not article_in_db:
-            raise HTTPException(
-                status_code=HTTPStatus.HTTP_404_NOT_FOUND, detail="Content not found"
-            )
-
-        if article_in_db.author_id != author_id:
-            raise HTTPException(
-                status_code=HTTPStatus.HTTP_403_FORBIDDEN,
-                detail="The user doesn't have the permission to modify this content",
-            )
+        _article_in_db_sanity_check(article_in_db=article_in_db, author_id=author_id)
 
         await self._delete_article_out_port.delete_article(article_id=article_id)
 

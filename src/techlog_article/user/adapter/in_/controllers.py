@@ -1,9 +1,9 @@
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, status, Form, Depends  # noqa: F401
+from fastapi import APIRouter, status, Form, Depends
 
 from common.tags import Tags
-from auth.application.services import CurrentUserIdDependency  # noqa: F401
+from auth.application.services import CurrentUserIdDependency
 
 from application.port.in_ import (
     SignUpDTO,
@@ -53,13 +53,13 @@ async def update_user_account(
     update_account_port: Annotated[UpdateAccountPort, Depends(UpdateAccountService)]
 ) -> None:
     await update_account_port.update_account(
+        user_id=user_id,
         dto=UpdateAccountDTO(
-            user_id=user_id,
             username=username,
             email=email,
             password=password,
             password_recheck=password_recheck,
-        )
+        ),
     )
 
     return None

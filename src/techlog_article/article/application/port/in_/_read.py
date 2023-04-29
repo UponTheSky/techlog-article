@@ -24,9 +24,9 @@ class ReadArticleListInDTO(BaseModel):
         default="created_at", description="Must be a field of the Article schema"
     )
 
-    @validator("sort_by")
-    def validate_sort_by(cls, v):
-        if v not in Article.__fields_set__:
+    @validator("order_by")
+    def validate_order_by(cls, v):
+        if v not in set(Article.__fields__):
             raise ValueError(
                 "The sort criterion should be one of the fields in the Article schema"
             )
@@ -34,7 +34,8 @@ class ReadArticleListInDTO(BaseModel):
         return v
 
 
-class _SingleArticleResponse(BaseModel):
+class SingleArticleInList(BaseModel):
+    id: UUID
     title: str
     author_name: str
     created_at: datetime
@@ -43,12 +44,12 @@ class _SingleArticleResponse(BaseModel):
 
 class ReadArticleListResponse(BaseModel):
     total_articles_count: int
-    article_list: list[_SingleArticleResponse]
+    article_list: list[SingleArticleInList]
 
 
 class ReadArticleInPort(ABC):
     @abstractmethod
-    async def read_article_by_id(self, id: UUID) -> Optional[ReadArticleResponse]:
+    async def read_article_by_id(self, id: UUID) -> ReadArticleResponse:
         ...
 
     @abstractmethod

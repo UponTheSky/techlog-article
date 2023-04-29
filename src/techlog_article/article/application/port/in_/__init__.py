@@ -3,6 +3,7 @@ from ._read import (
     ReadArticleInPort,
     ReadArticleResponse,
     ReadArticleListInDTO,
+    SingleArticleInList,
     ReadArticleListResponse,
 )
 from ._update import UpdateArticleInDTO, UpdateArticleInPort
@@ -14,6 +15,7 @@ __all__ = [
     "ReadArticleInPort",
     "ReadArticleResponse",
     "ReadArticleListInDTO",
+    "SingleArticleInList",
     "ReadArticleListResponse",
     "UpdateArticleInDTO",
     "UpdateArticleInPort",

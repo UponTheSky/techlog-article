@@ -8,6 +8,12 @@ from common.database import models, CurrentDBSessionDependency
 
 @final
 class UserRepository:
+    """
+    Remark: we don't filter `deleted_at` != None in this case like we do
+    in the article related repositories, since we want to preserve user-related
+    data for some time.
+    """
+
     def __init__(self, *, db_session: CurrentDBSessionDependency):
         self._db_session = db_session
 
@@ -19,13 +25,10 @@ class UserRepository:
         stmt = select(models.User).where(models.User.email == email)
         return await self._db_session.scalar(stmt)
 
-    async def create_user(self, *, dao: dict[str, Any]) -> None:
-        user_orm = models.User(**dao)
-        await self._db_session.add(user_orm)
-        await self._db_session.flush()
-
     async def update_user(self, *, user_id: UUID, dao: dict[str, Any]) -> None:
-        stmt = select(models.User).where(models.User.id == user_id)
+        stmt = select(models.User).where(
+            models.User.id == user_id, models.User.deleted_at is None
+        )
         user_orm = (await self._db_session.scalars(stmt)).one()
 
         for field, new_value in dao:
