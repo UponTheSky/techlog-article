@@ -26,14 +26,14 @@ from .port.out import (
 )
 
 
-class HashPasswordMixin:
+class _HashPasswordMixin:
     @staticmethod
     def _hash_password(*, password: str) -> str:
         return hash_password(password=password)
 
 
 @final
-class SignUpService(SignUpPort, HashPasswordMixin):
+class SignUpService(SignUpPort, _HashPasswordMixin):
     def __init__(
         self,
         *,
@@ -94,7 +94,7 @@ class SignOutService(SignOutPort):
 
 
 @final
-class UpdateAccountService(UpdateAccountPort, HashPasswordMixin):
+class UpdateAccountService(UpdateAccountPort, _HashPasswordMixin):
     def __init__(
         self,
         *,
