@@ -20,6 +20,9 @@ from .port.out import ReadUserPort, UpdateAuthDTO, UpdateAuthPort, ReadAuthPort
 from ..adapter.out.persistences import UserPersistenceAdapter, AuthPersistenceAdapter
 
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
+
 @final
 class AuthTokenCheckService:
     def __init__(
@@ -28,13 +31,8 @@ class AuthTokenCheckService:
         read_auth_port: Annotated[ReadAuthPort, Depends(AuthPersistenceAdapter)],
     ):
         self._read_auth_port = read_auth_port
-        super().__init__(tokenUrl="auth/login")
 
-    async def __call__(
-        self,
-        *,
-        token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="auth/login"))],
-    ) -> UUID:
+    async def __call__(self, *, token: Annotated[str, Depends(oauth2_scheme)]) -> UUID:
         try:
             payload = self._decode_token(token)
 
@@ -43,14 +41,14 @@ class AuthTokenCheckService:
 
             # invalid case 1: invalid token
             if not user_id:
-                raise self.get_credentials_exception("Could not validate credentials")
+                raise self._get_credentials_exception("Could not validate credentials")
 
             user_id = UUID(user_id)
 
             # invalid case 2: expired token
             expired_at = int(payload.get("exp"))
             if expired_at < get_now_utc_timestamp():
-                raise self.get_credentials_exception("The token has expired")
+                raise self._get_credentials_exception("The token has expired")
             """
             Remark: The parts involving the DB will be available after
             adding the Redis cache layer afterward
@@ -72,12 +70,12 @@ class AuthTokenCheckService:
             return user_id
 
         except (JWTError, ValueError):
-            raise self.get_credentials_exception(
+            raise self._get_credentials_exception(
                 "Token error: Could not validate credentials"
             )
 
     @staticmethod
-    def get_credentials_exception(message: str) -> HTTPException:
+    def _get_credentials_exception(message: str) -> HTTPException:
         return HTTPException(
             status_code=HTTPStatus.HTTP_401_UNAUTHORIZED,
             detail=message,
@@ -89,7 +87,8 @@ class AuthTokenCheckService:
         return decode_jwt_token(token)
 
 
-CurrentUserIdDependency = Annotated[UUID, Annotated[AuthTokenCheckService, Depends()]]
+AuthTokenCheckServiceDependency = Annotated[AuthTokenCheckService, Depends()]
+CurrentUserIdDependency = Annotated[UUID, Depends(AuthTokenCheckServiceDependency)]
 
 
 @final
