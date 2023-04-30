@@ -31,7 +31,7 @@ from ..adapter.out.persistences import (
 )
 
 
-class ArticleInDBSanityCheckMixin:
+class _ArticleInDBSanityCheckMixin:
     @staticmethod
     def _article_in_db_sanity_check(
         *, article_in_db: Optional[Article], author_id: UUID
@@ -125,7 +125,7 @@ class ReadArticeService(ReadArticleInPort):
 
 
 @final
-class UpdateArticeService(UpdateArticleInPort, ArticleInDBSanityCheckMixin):
+class UpdateArticeService(UpdateArticleInPort, _ArticleInDBSanityCheckMixin):
     def __init__(
         self,
         *,
@@ -155,7 +155,7 @@ class UpdateArticeService(UpdateArticleInPort, ArticleInDBSanityCheckMixin):
 
 
 @final
-class DeleteArticleService(DeleteArticleInPort, ArticleInDBSanityCheckMixin):
+class DeleteArticleService(DeleteArticleInPort, _ArticleInDBSanityCheckMixin):
     def __init__(
         self,
         *,
