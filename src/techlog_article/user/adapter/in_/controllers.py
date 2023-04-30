@@ -36,8 +36,8 @@ async def sign_up(
         password=password,
         password_recheck=password_recheck,
     )
-    await sign_up_port.sign_up(dto=sign_up_dto)
 
+    await sign_up_port.sign_up(dto=sign_up_dto)
     return None
 
 

@@ -3,8 +3,7 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 from dataclasses import dataclass
 
-from ....domain import Article
-from src.techlog_article.user import User
+from ....domain import Article, User
 
 
 @dataclass

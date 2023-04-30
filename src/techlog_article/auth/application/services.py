@@ -28,6 +28,7 @@ class AuthTokenCheckService:
         read_auth_port: Annotated[ReadAuthPort, Depends(AuthPersistenceAdapter)],
     ):
         self._read_auth_port = read_auth_port
+        super().__init__(tokenUrl="auth/login")
 
     async def __call__(
         self,

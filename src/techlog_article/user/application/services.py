@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import status as HTTPStatus, HTTPException, Depends
 
 from src.techlog_article.common.utils.password import hash_password
+
 from ..adapter.out.persistences import (
     UserPersistenceAdapter,
     UserAuthPersistenceAdapter,

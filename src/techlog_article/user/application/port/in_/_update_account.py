@@ -22,14 +22,23 @@ class UpdateAccountDTO(BaseModel):
 
     @validator("username")
     def username_is_valid(cls, v):
-        return validate_username(username=v) if v else None
+        if not v:
+            return None
+
+        return validate_username(username=v)
 
     @validator("email")
     def email_is_valid(cls, v):
+        if not v:
+            return None
+
         return validate_email(email=v) if v else None
 
     @validator("password")
     def password_is_valid(cls, v):
+        if not v:
+            return None
+
         return validate_password(password=v) if v else None
 
     @validator("password_recheck")

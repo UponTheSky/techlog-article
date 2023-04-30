@@ -7,7 +7,7 @@ from src.techlog_article.common.utils.jwt import JWTToken
 from src.techlog_article.common.tags import Tags
 
 from ...application.port.in_ import LoginPort, LoginDTO, LogoutPort
-from ...application.services import LoginService, LogoutService, CurrentUserIdDependency
+from ...application.services import CurrentUserIdDependency, LoginService, LogoutService
 
 router = APIRouter(
     prefix="/auth",

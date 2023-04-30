@@ -18,11 +18,11 @@ def validate_username(*, username: str) -> str:
 def validate_password(*, password: str) -> str:
     if not (
         re.match(r"[a-zA-Z\d\!\@\#\$\%\^\&\*\(\)]+", password)
-        or re.search(r"[a-z]", password)
-        or re.search(r"[A-Z]", password)
-        or re.search(r"\d", password)
-        or re.search(r"[\!\@\#\$\%\^\&\*\(\)]", password)
-        or (8 <= len(password) <= 16)
+        and re.search(r"[a-z]", password)
+        and re.search(r"[A-Z]", password)
+        and re.search(r"\d", password)
+        and re.search(r"[\!\@\#\$\%\^\&\*\(\)]", password)
+        and (8 <= len(password) <= 16)
     ):
         raise ValueError(
             """
