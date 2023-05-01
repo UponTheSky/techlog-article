@@ -66,9 +66,9 @@ async def create_article(
 @router.get("/", status_code=HTTPStatus.HTTP_200_OK)
 async def read_articles(
     *,
-    offset: int = Query(),
-    limit: int = Query(),
-    order_by: str = "created_at",
+    offset: int = Query(default=0),
+    limit: int = Query(default=1),
+    order_by: str = Query(default="created_at"),
     read_article_in_port: Annotated[ReadArticleInPort, Depends(ReadArticeService)],
 ) -> ReadArticleListResponse:
     return await read_article_in_port.read_article_list(

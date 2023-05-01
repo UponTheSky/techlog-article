@@ -4,6 +4,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, validator
 
+from ._validation_helper import validate_title
+
 
 class UpdateArticleInDTO(BaseModel):
     title: Optional[str] = None
@@ -14,10 +16,7 @@ class UpdateArticleInDTO(BaseModel):
         if not v:  # including empty string; excluded from the DAO in the out adapter
             return None
 
-        if not (1 <= len(v) <= 32):
-            raise ValueError("The title must be of length from 1 to 32")
-
-        return v
+        return validate_title(title=v)
 
 
 class UpdateArticleInPort(ABC):
