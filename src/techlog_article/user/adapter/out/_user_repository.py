@@ -25,13 +25,18 @@ class UserRepository:
         stmt = select(models.User).where(models.User.email == email)
         return await self._db_session.scalar(stmt)
 
+    async def read_by_id(self, id: str) -> Optional[models.User]:
+        stmt = select(models.User).where(models.User.id == id)
+        return await self._db_session.scalar(stmt)
+
     async def update_user(self, *, user_id: UUID, dao: dict[str, Any]) -> None:
         stmt = select(models.User).where(
-            models.User.id == user_id, models.User.deleted_at is None
+            models.User.id == user_id, models.User.deleted_at.is_(None)
         )
+
         user_orm = (await self._db_session.scalars(stmt)).one()
 
-        for field, new_value in dao:
+        for field, new_value in dao.items():
             setattr(user_orm, field, new_value)
 
         await self._db_session.flush()

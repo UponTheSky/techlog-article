@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import select
 
 from src.techlog_article.common.database import CurrentDBSessionDependency, models
-from src.techlog_article.common.utils.datetime import get_now_utc_timestamp
+from src.techlog_article.common.utils.datetime import get_now_datetime
 
 
 @final
@@ -14,13 +14,13 @@ class ArticleRepository:
 
     async def read_article_by_id(self, id: UUID) -> Optional[models.Article]:
         stmt = select(models.Article).where(
-            models.Article.id == id, models.Article.deleted_at is None
+            models.Article.id == id, models.Article.deleted_at.is_(None)
         )
         return await self._db_session.scalar(stmt)
 
     async def update_article(self, *, article_id: UUID, dao: dict[str, Any]) -> None:
         stmt = select(models.Article).where(
-            models.Article.id == article_id, models.Article.deleted_at is None
+            models.Article.id == article_id, models.Article.deleted_at.is_(None)
         )
         article_orm = (await self._db_session.scalars(stmt)).one()
 
@@ -31,5 +31,5 @@ class ArticleRepository:
 
     async def delete_article(self, *, article_id: UUID) -> None:
         await self.update_article(
-            article_id=article_id, dao={"deleted_at": get_now_utc_timestamp()}
+            article_id=article_id, dao={"deleted_at": get_now_datetime()}
         )

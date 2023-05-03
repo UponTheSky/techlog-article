@@ -1,5 +1,5 @@
 from typing import final, Any, Optional
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import select, func
 from sqlalchemy.orm import joinedload, selectinload
@@ -17,18 +17,18 @@ class ArticleUserRepository:
     ) -> None:
         stmt = select(models.User).where(models.User.id == author_id)
         author_orm = (await self._db_session.scalars(stmt)).one()
-        article_orm = models.Article(**article_dao)
+        article_orm = models.Article(id=uuid4(), **article_dao)
 
         author_orm.articles.append(article_orm)
 
-        await self._db_session.add(article_orm)
+        self._db_session.add(article_orm)
         await self._db_session.flush()
 
     async def read_article_by_id(self, id: UUID) -> Optional[models.Article]:
         stmt = (
             select(models.Article)
             .options(selectinload(models.Article.author))
-            .where(models.Article.id == id, models.Article.deleted_at is None)
+            .where(models.Article.id == id, models.Article.deleted_at.is_(None))
         )
 
         return await self._db_session.scalar(stmt)
@@ -39,7 +39,7 @@ class ArticleUserRepository:
         stmt = (
             select(models.Article)
             .options(joinedload(models.Article.author))
-            .where(models.Article.deleted_at is None)
+            .where(models.Article.deleted_at.is_(None))
             .offset(offset)
             .limit(limit)
             .order_by(getattr(models.Article, order_by))
@@ -49,7 +49,7 @@ class ArticleUserRepository:
 
     async def get_total_articles_count(self) -> int:
         stmt = select(func.count(models.Article.id)).where(
-            models.Article.deleted_at is None
+            models.Article.deleted_at.is_(None)
         )
         result = await self._db_session.scalar(stmt)
 
