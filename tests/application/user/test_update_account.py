@@ -7,6 +7,7 @@ import pytest
 
 from . import (
     UpdateAccountService,
+    CheckUserPort,
     UpdateUserPort,
     UpdateAccountDTO,
     UpdateUserDTO,
@@ -16,7 +17,10 @@ from . import (
 
 @pytest.fixture
 def service() -> UpdateAccountService:
-    return UpdateAccountService(update_user_port=mock.Mock(spec=UpdateUserPort))
+    return UpdateAccountService(
+        check_user_port=mock.AsyncMock(spec=CheckUserPort),
+        update_user_port=mock.AsyncMock(spec=UpdateUserPort),
+    )
 
 
 @pytest.mark.asyncio
@@ -48,7 +52,7 @@ async def test_passes_only_values_set(
 
     with (
         mock.patch.object(
-            service._update_user_port, "read_user_by_id", return_value=user_in_db
+            service._check_user_port, "check_exists_by_id", return_value=user_in_db
         ),
         mock.patch.object(
             UpdateUserDTO, "__init__", return_value=None

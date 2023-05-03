@@ -2,11 +2,11 @@ from typing import Optional
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import String, Text, ForeignKey, func
+from sqlalchemy import TIMESTAMP, String, Text, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
-class Base(DeclarativeBase):
+class TimestampMixin:
     # default fields for every orm object
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[Optional[datetime]] = mapped_column(
@@ -15,7 +15,20 @@ class Base(DeclarativeBase):
     deleted_at: Mapped[Optional[datetime]] = mapped_column(default=None)
 
 
-class User(Base):
+class Base(DeclarativeBase):
+    """
+    If we want the datetime type to have timezone, then we should specify
+    a custom mapping as below.
+
+    For details, see: https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html
+    """
+
+    type_annotation_map = {
+        datetime: TIMESTAMP(timezone=True),
+    }
+
+
+class User(TimestampMixin, Base):
     __tablename__ = "user"
 
     # fields
@@ -32,7 +45,7 @@ class User(Base):
         return f"DB User id={self.id!r}"
 
 
-class Auth(Base):
+class Auth(TimestampMixin, Base):
     """
     Remark: since you can't directly store a UUID data into a MySQL database,
     you have to convert it to other data formats
@@ -52,7 +65,7 @@ class Auth(Base):
         return f"DB Auth id={self.id!r}"
 
 
-class Article(Base):
+class Article(TimestampMixin, Base):
     __tablename__ = "article"
 
     # fields

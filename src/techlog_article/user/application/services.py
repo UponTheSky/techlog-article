@@ -99,12 +99,14 @@ class UpdateAccountService(UpdateAccountPort, _HashPasswordMixin):
     def __init__(
         self,
         *,
+        check_user_port: Annotated[CheckUserPort, Depends(UserPersistenceAdapter)],
         update_user_port: Annotated[UpdateUserPort, Depends(UserPersistenceAdapter)]
     ):
+        self._check_user_port = check_user_port
         self._update_user_port = update_user_port
 
     async def update_account(self, *, user_id: UUID, dto: UpdateAccountDTO) -> None:
-        user_in_db = await self._update_user_port.read_user_by_id(user_id=user_id)
+        user_in_db = await self._check_user_port.check_exists_by_id(user_id)
 
         if not user_in_db:
             raise HTTPException(

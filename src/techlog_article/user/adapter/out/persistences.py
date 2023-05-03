@@ -1,4 +1,4 @@
-from typing import final, Optional, Annotated
+from typing import final, Annotated
 from uuid import UUID
 
 from fastapi import Depends
@@ -11,7 +11,6 @@ from ...application.port.out import (
     UpdateUserDTO,
     UpdateUserPort,
 )
-from ...domain import User
 
 from ._user_repository import UserRepository
 from ._user_auth_repository import UserAuthRepository
@@ -22,12 +21,16 @@ class UserPersistenceAdapter(CheckUserPort, UpdateUserPort):
     def __init__(self, *, user_repository: Annotated[UserRepository, Depends()]):
         self._user_repository = user_repository
 
-    async def check_exists_by_username(self, username: str) -> Optional[User]:
+    async def check_exists_by_username(self, username: str) -> bool:
         user_orm = await self._user_repository.read_by_username(username)
         return user_orm is not None
 
-    async def check_exists_by_email(self, email: str) -> Optional[User]:
+    async def check_exists_by_email(self, email: str) -> bool:
         user_orm = await self._user_repository.read_by_email(email)
+        return user_orm is not None
+
+    async def check_exists_by_id(self, id: UUID) -> bool:
+        user_orm = await self._user_repository.read_by_id(id)
         return user_orm is not None
 
     async def update_user(self, *, user_id: UUID, dto: UpdateUserDTO) -> None:
