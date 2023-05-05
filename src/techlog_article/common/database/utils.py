@@ -16,6 +16,7 @@ def transactional(func: AsyncCallable) -> AsyncCallable:
 
         async with db_session.begin():
             return_value = await func(*args, **kwargs)
+            db_session.commit()
 
         return return_value
 

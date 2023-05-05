@@ -17,7 +17,7 @@ async def db_session_middleware_function(
         response = await call_next(request)
 
     finally:
-        await AsyncScopedSession.remove()
+        await AsyncScopedSession.remove()  # this includes closing the session as well
         set_db_session_context(session_id=None)
 
     return response
