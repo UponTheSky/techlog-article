@@ -13,11 +13,11 @@ async def db_session_middleware_function(
     )
 
     try:
-        set_db_session_context(hash(request))
+        set_db_session_context(session_id=hash(request))
         response = await call_next(request)
 
     finally:
         await AsyncScopedSession.remove()
-        set_db_session_context(None)
+        set_db_session_context(session_id=None)
 
     return response

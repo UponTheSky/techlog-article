@@ -40,8 +40,9 @@ _app.add_middleware(
     allow_headers=["*"],
 )
 _app.add_middleware(HTTPSRedirectMiddleware)
+# remark: if you don't include "testserver", we get 400 errors when testing
 _app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=["localhost"]
+    TrustedHostMiddleware, allowed_hosts=["localhost", "testserver"]
 )  # TODO: change this to our FE server
 
 
