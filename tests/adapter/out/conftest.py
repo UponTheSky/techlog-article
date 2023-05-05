@@ -1,7 +1,5 @@
 import os
-import asyncio
 
-import pytest
 import pytest_asyncio
 from testcontainers.postgres import PostgresContainer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,16 +15,6 @@ from src.techlog_article.common.database import models
 # reference: https://mariogarcia.github.io/blog/2019/10/pytest_fixtures.html
 
 POSTGRES_VERSION = "15.0"
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-
-    yield loop
-
-    loop.close()
 
 
 @pytest_asyncio.fixture(scope="session")

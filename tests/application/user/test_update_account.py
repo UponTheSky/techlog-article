@@ -27,6 +27,7 @@ def service() -> UpdateAccountService:
 @pytest.mark.parametrize(
     "dto_kwargs",
     [
+        {},
         {"username": "test_test", "email": "test@test.com"},
         {
             "password": "1Q2w3e4r!",
@@ -34,7 +35,6 @@ def service() -> UpdateAccountService:
             "username": "testtesttest",
         },
         {"email": "test@test.com"},
-        {},
     ],
 )
 async def test_passes_only_values_set(
