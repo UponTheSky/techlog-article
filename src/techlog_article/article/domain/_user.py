@@ -7,3 +7,6 @@ class User(BaseModel):
     id: UUID
     username: str
     email: str
+
+    class Config:
+        orm_mode = True

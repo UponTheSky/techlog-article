@@ -102,8 +102,10 @@ class ReadArticeService(ReadArticleInPort):
     async def read_article_list(
         self, *, dto: ReadArticleListInDTO
     ) -> ReadArticleListResponse:
-        articles_with_authors = await self._read_article_out_port.read_article_list(
-            offset=dto.offset, limit=dto.limit, order_by=dto.order_by
+        articles_with_authors = (
+            await self._read_article_out_port.read_article_with_author_list(
+                offset=dto.offset, limit=dto.limit, order_by=dto.order_by
+            )
         )
         total_articles_count = (
             await self._read_article_out_port.get_total_articles_count()
