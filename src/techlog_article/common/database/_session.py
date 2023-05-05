@@ -1,7 +1,6 @@
-from typing import Callable, Awaitable, Optional, Annotated
+from typing import Optional
 from contextvars import ContextVar
 
-from fastapi import Request, Response, status as HTTPStatus, Depends
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_scoped_session,
@@ -39,25 +38,3 @@ AsyncScopedSession = async_scoped_session(
 
 def get_current_session() -> AsyncSession:
     return AsyncScopedSession()
-
-
-CurrentDBSessionDependency = Annotated[AsyncSession, Depends(get_current_session)]
-
-
-async def db_session_middleware_function(
-    request: Request, call_next: Callable[[Request], Awaitable[Response]]
-) -> Response:
-    response = Response(
-        "Internal server error", status_code=HTTPStatus.HTTP_500_INTERNAL_SERVER_ERROR
-    )
-
-    try:
-        set_db_session_context(hash(request))
-        request.state.db_session = AsyncScopedSession()
-        response = await call_next(request)
-
-    finally:
-        await AsyncScopedSession.remove()
-        set_db_session_context(None)
-
-    return response
