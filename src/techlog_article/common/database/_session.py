@@ -44,7 +44,7 @@ def get_current_session() -> AsyncSession:
 CurrentDBSessionDependency = Annotated[AsyncSession, Depends(get_current_session)]
 
 
-async def db_session_middleware(
+async def db_session_middleware_function(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
     response = Response(
