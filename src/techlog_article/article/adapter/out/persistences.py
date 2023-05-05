@@ -33,7 +33,9 @@ class ArticleUserPersistenceAdapter(CreateArticleOutPort, ReadArticleOutPort):
     async def read_article_by_id_with_author(
         self, id: UUID
     ) -> Optional[ArticleWithAuthor]:
-        article_orm = await self._article_user_repository.read_article_by_id(id)
+        article_orm = await self._article_user_repository.read_article_by_id_with_user(
+            id
+        )
         if not article_orm:
             return None
 
@@ -42,10 +44,10 @@ class ArticleUserPersistenceAdapter(CreateArticleOutPort, ReadArticleOutPort):
             author=User.from_orm(article_orm.author),
         )
 
-    async def read_article_list(
+    async def read_article_with_author_list(
         self, *, offset: int, limit: int, order_by: str
     ) -> list[ArticleWithAuthor]:
-        article_orms = await self._article_user_repository.read_article_list(
+        article_orms = await self._article_user_repository.read_article_with_user_list(
             offset=offset, limit=limit, order_by=order_by
         )
 
@@ -66,14 +68,14 @@ class ArticlePersistenceAdapter(UpdateArticleOutPort, DeleteArticleOutPort):
     def __init__(self, article_repository: Annotated[ArticleRepository, Depends()]):
         self._article_repository = article_repository
 
-    async def read_article_by_id(self, id: UUID) -> Article:
+    async def read_article_by_id(self, id: UUID) -> Optional[Article]:
         article_orm = await self._article_repository.read_article_by_id(id)
         return Article.from_orm(article_orm) if article_orm else None
 
     async def update_article(
         self, *, article_id: UUID, dto: UpdateArticleOutDTO
     ) -> None:
-        self._article_repository.update_article(
+        await self._article_repository.update_article(
             article_id=article_id, dao=dto.dict(exclude_unset=True)
         )
 

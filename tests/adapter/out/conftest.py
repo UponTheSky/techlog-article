@@ -51,7 +51,7 @@ async def db_session():
 
     yield current_session
 
-    current_session.close()
+    await current_session.close()
     os.environ["DB_URL"] = original_db_url
     container.stop()
 

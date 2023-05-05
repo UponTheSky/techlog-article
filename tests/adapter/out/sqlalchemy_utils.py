@@ -1,5 +1,6 @@
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID, uuid4
+from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -25,7 +26,7 @@ async def object_refresh(*, db_session: AsyncSession, object: Any) -> None:
 
 async def store_single_entity(
     *, db_session: AsyncSession, orm_model: Any, **kwargs: dict[str, Any]
-) -> Any:
+) -> None:
     db_session.add(orm_model(**kwargs))
     await db_session.commit()
 
@@ -59,9 +60,50 @@ async def read_user_with_auth_by_username(
     )
 
 
+async def read_article_with_user(
+    *, db_session: AsyncSession, article_id: UUID
+) -> models.Article:
+    return await db_session.scalar(
+        select(models.Article)
+        .options(selectinload(models.Article.author))
+        .where(models.Article.id == article_id)
+    )
+
+
 async def store_user_with_auth(*, db_session: AsyncSession, **kwargs) -> None:
     user_orm = models.User(**kwargs)
     user_orm.auth = models.Auth(id=uuid4())
+    db_session.add(user_orm)
+
+    await db_session.commit()
+
+
+async def store_user_with_article(
+    *,
+    db_session: AsyncSession,
+    user_id: UUID,
+    username: str,
+    article_id: UUID,
+    article_title: str,
+    content: Optional[str] = None,
+    user_deleted_at: Optional[datetime] = None,
+    article_deleted_at: Optional[datetime] = None
+) -> None:
+    user_orm = models.User(
+        id=user_id,
+        username=username,
+        email="",
+        hashed_password="",
+        deleted_at=user_deleted_at,
+    )
+    user_orm.articles.append(
+        models.Article(
+            id=article_id,
+            title=article_title,
+            content=content,
+            deleted_at=article_deleted_at,
+        )
+    )
     db_session.add(user_orm)
 
     await db_session.commit()

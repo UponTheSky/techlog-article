@@ -20,7 +20,7 @@ class ReadArticleOutPort(ABC):
         ...
 
     @abstractmethod
-    async def read_article_list(
+    async def read_article_with_author_list(
         self, *, offset: int, limit: int, order_by: str
     ) -> list[ArticleWithAuthor]:
         ...
