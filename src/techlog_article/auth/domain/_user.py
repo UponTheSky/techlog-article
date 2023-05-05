@@ -6,3 +6,6 @@ class User(BaseModel):
     id: UUID
     username: str
     hashed_password: str
+
+    class Config:
+        orm_mode = True

@@ -2,7 +2,7 @@ from typing import Optional
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import TIMESTAMP, String, Text, ForeignKey, func
+from sqlalchemy import String, Text, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -20,12 +20,14 @@ class Base(DeclarativeBase):
     If we want the datetime type to have timezone, then we should specify
     a custom mapping as below.
 
-    For details, see: https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html
-    """
-
     type_annotation_map = {
         datetime: TIMESTAMP(timezone=True),
     }
+
+    For details, see: https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html
+    """
+
+    pass
 
 
 class User(TimestampMixin, Base):
