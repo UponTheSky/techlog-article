@@ -17,7 +17,7 @@ from ._auth_repository import AuthRepository
 
 @final
 class UserPersistenceAdapter(ReadUserPort):
-    async def __init__(self, *, user_repository: Annotated[UserRepository, Depends()]):
+    def __init__(self, *, user_repository: Annotated[UserRepository, Depends()]):
         self._user_repository = user_repository
 
     async def read_user_by_name(self, *, username: str) -> Optional[User]:
@@ -35,7 +35,6 @@ class AuthPersistenceAdapter(UpdateAuthPort, ReadAuthPort):
         return Auth.from_orm(auth_orm) if auth_orm else None
 
     async def update_auth(self, *, user_id: UUID, dto: UpdateAuthDTO) -> None:
-        auth_orm = await self._auth_repository.read_by_user_id(user_id)
         await self._auth_repository.update(
-            orm=auth_orm, dao=dto.dict(exclude_unset=True)
+            user_id=user_id, dao=dto.dict(exclude_unset=True)
         )

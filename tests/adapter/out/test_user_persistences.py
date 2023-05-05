@@ -21,6 +21,7 @@ from .sqlalchemy_utils import (
     read_single_entity_by_id,
     read_user_with_auth_by_username,
     object_refresh,
+    NoResultFoundError,
 )
 
 
@@ -86,6 +87,14 @@ class TestUserPersistenceAdapter:
         assert updated_user.hashed_password != hashed_password
         assert updated_user.email == email
 
+    async def test_updates_non_existing_user(
+        self, user_persistence_adapter: UserPersistenceAdapter
+    ):
+        with pytest.raises(NoResultFoundError):
+            await user_persistence_adapter.update_user(
+                user_id=uuid4(), dto=UpdateUserDTO()
+            )
+
 
 @pytest.mark.asyncio
 class TestUserAuthPersistenceAdapter:
@@ -129,3 +138,9 @@ class TestUserAuthPersistenceAdapter:
 
         assert deleted_user.deleted_at is not None
         assert deleted_user.auth.deleted_at is not None
+
+    async def tests_deletes_non_existing_user(
+        self, user_auth_persistence_adapter: UserAuthPersistenceAdapter
+    ):
+        with pytest.raises(NoResultFoundError):
+            await user_auth_persistence_adapter.delete_user_auth(user_id=uuid4())

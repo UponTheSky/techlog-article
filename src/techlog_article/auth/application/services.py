@@ -5,7 +5,7 @@ from fastapi import HTTPException, status as HTTPStatus, Depends
 from fastapi.security import OAuth2PasswordBearer
 
 from src.techlog_article.common.config import auth_config
-from src.techlog_article.common.utils.datetime import get_now_utc_timestamp
+from src.techlog_article.common.utils.datetime import get_now_timestamp
 from src.techlog_article.common.utils.jwt import (
     create_token as create_jwt_token,
     JWTToken,
@@ -47,7 +47,7 @@ class AuthTokenCheckService:
 
             # invalid case 2: expired token
             expired_at = int(payload.get("exp"))
-            if expired_at < get_now_utc_timestamp():
+            if expired_at < get_now_timestamp():
                 raise self._get_credentials_exception("The token has expired")
             """
             Remark: The parts involving the DB will be available after
@@ -137,7 +137,7 @@ class LoginService(LoginPort):
     def _issue_access_token(self, *, user_id: UUID, is_admin: bool = False) -> JWTToken:
         return create_jwt_token(
             user_id=user_id,
-            expiry=get_now_utc_timestamp() + auth_config.ACCESS_TOKEN_EXPRIRES_IN,
+            expiry=get_now_timestamp() + auth_config.ACCESS_TOKEN_EXPRIRES_IN,
             is_admin=is_admin,
         )
 
