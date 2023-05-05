@@ -2,6 +2,7 @@ from typing import final, Annotated, Optional
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status as HTTPStatus
+from src.techlog_article.common.database.utils import transactional
 
 from ..domain import Article
 
@@ -61,6 +62,7 @@ class CreateArticleService(CreateArticleOutPort):
     ):
         self._create_article_out_port = create_article_out_port
 
+    @transactional
     async def create_article(self, *, dto: CreateArticleInDTO) -> None:
         await self._create_article_out_port.create_article(
             dto=CreateArticleOutDTO(**dto.dict())
@@ -137,6 +139,7 @@ class UpdateArticeService(UpdateArticleInPort, _ArticleInDBSanityCheckMixin):
     ):
         self._update_article_out_port = update_article_out_port
 
+    @transactional
     async def update_article(
         self, *, author_id: UUID, article_id: UUID, dto: UpdateArticleInDTO
     ) -> None:
@@ -167,6 +170,7 @@ class DeleteArticleService(DeleteArticleInPort, _ArticleInDBSanityCheckMixin):
     ):
         self._delete_article_out_port = delete_article_out_port
 
+    @transactional
     async def delete_article(self, *, author_id: UUID, article_id: UUID) -> None:
         article_in_db = await self._delete_article_out_port.read_article_by_id(
             article_id

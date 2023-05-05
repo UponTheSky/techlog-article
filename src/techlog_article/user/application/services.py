@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import status as HTTPStatus, HTTPException, Depends
 
 from src.techlog_article.common.utils.password import hash_password
+from src.techlog_article.common.database.utils import transactional
 
 from ..adapter.out.persistences import (
     UserPersistenceAdapter,
@@ -46,6 +47,7 @@ class SignUpService(SignUpPort, _HashPasswordMixin):
         self._check_user_port = check_user_port
         self._create_user_port = create_user_auth_port
 
+    @transactional
     async def sign_up(self, *, dto: SignUpDTO) -> None:
         if await self._userinfo_exists(
             check_user_port=self._check_user_port,
@@ -88,6 +90,7 @@ class SignOutService(SignOutPort):
     ):
         self._delete_user_auth_port = delete_user_auth_port
 
+    @transactional
     async def sign_out(self, *, user_id: UUID) -> None:
         await self._delete_user_auth_port.delete_user_auth(user_id=user_id)
 
@@ -105,6 +108,7 @@ class UpdateAccountService(UpdateAccountPort, _HashPasswordMixin):
         self._check_user_port = check_user_port
         self._update_user_port = update_user_port
 
+    @transactional
     async def update_account(self, *, user_id: UUID, dto: UpdateAccountDTO) -> None:
         user_in_db = await self._check_user_port.check_exists_by_id(user_id)
 

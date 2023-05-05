@@ -39,7 +39,7 @@ async def test_rasies_404_when_article_is_not_found(service: ReadArticeService):
 async def test_call_both_list_and_count_when_reading_list(service: ReadArticeService):
     with (
         mock.patch.object(
-            service._read_article_out_port, "read_article_list"
+            service._read_article_out_port, "read_article_with_author_list"
         ) as mock_read_list,
         mock.patch.object(
             service._read_article_out_port, "get_total_articles_count"

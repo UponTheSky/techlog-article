@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
@@ -9,7 +9,27 @@ from .auth.adapter.in_.controllers import router as auth_router
 from .user.adapter.in_.controllers import router as user_router
 from .article.adapter.in_.controllers import router as article_router
 
-_app = FastAPI()
+from .common.tags import Tags
+from .common.database import db_session_middleware_function
+
+_app = FastAPI(
+    title="techlog-article",
+    description="The backend API of my personal tech blog article",
+    version="0.0.1",
+    contact={
+        "name": "Sung Ju Yea",
+        "url": "TBA",  # TODO: add url of the FE homepage
+        "email": "sungju.yea@gmail.com",
+    },
+    openapi_tags=[
+        {"name": Tags.user, "description": "The APIs about the users"},
+        {
+            "name": Tags.auth,
+            "description": "The APIs providing access tokens to the users",
+        },
+        {"name": Tags.article, "description": "The APIs about the users"},
+    ],
+)
 
 # middlewares
 _app.add_middleware(
@@ -20,9 +40,16 @@ _app.add_middleware(
     allow_headers=["*"],
 )
 _app.add_middleware(HTTPSRedirectMiddleware)
+# remark: if you don't include "testserver", we get 400 errors when testing
 _app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=["*"]
+    TrustedHostMiddleware, allowed_hosts=["localhost", "testserver"]
 )  # TODO: change this to our FE server
+
+
+@_app.middleware("http")
+async def db_session_middleware(request: Request, call_next):
+    return await db_session_middleware_function(request, call_next)
+
 
 # routers
 _app.include_router(article_router)
@@ -35,4 +62,4 @@ _app.add_exception_handler(
     handler=request_validation_exception_handler,
 )
 
-app: FastAPI = _app
+app = _app

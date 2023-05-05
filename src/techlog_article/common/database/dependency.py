@@ -1,12 +1,9 @@
-from fastapi import Request
+from typing import Annotated
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
+
+from ._session import get_current_session
 
 
-def get_db_session(request: Request) -> AsyncSession:
-    if not hasattr(request.state, "db_session") or not isinstance(
-        request.state.db_session, AsyncSession
-    ):
-        raise AttributeError("DB session has not been provided")
-
-    return request.state.db_session
+CurrentDBSessionDependency = Annotated[AsyncSession, Depends(get_current_session)]

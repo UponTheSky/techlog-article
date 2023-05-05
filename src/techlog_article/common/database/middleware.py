@@ -1,17 +1,11 @@
-from typing import Callable, Awaitable, Optional
-from contextvars import ContextVar
+from typing import Callable, Awaitable
 
 from fastapi import Request, Response, status as HTTPStatus
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from ._session import AsyncScopedSession
-
-db_session_context: ContextVar[Optional[AsyncSession]] = ContextVar(
-    "db_session_context", default=None
-)
+from ._session import set_db_session_context, AsyncScopedSession
 
 
-async def db_session_middleware(
+async def db_session_middleware_function(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
     response = Response(
@@ -19,10 +13,11 @@ async def db_session_middleware(
     )
 
     try:
-        request.state.db_session = AsyncScopedSession()
+        set_db_session_context(session_id=hash(request))
         response = await call_next(request)
 
     finally:
-        request.state.db_session.close()
+        await AsyncScopedSession.remove()
+        set_db_session_context(session_id=None)
 
     return response

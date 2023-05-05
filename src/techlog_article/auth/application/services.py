@@ -13,6 +13,7 @@ from src.techlog_article.common.utils.jwt import (
     decode_token as decode_jwt_token,
 )
 from src.techlog_article.common.utils.password import verify_password
+from src.techlog_article.common.database.utils import transactional
 
 from .port.in_ import LoginDTO, LoginPort, LogoutPort
 from .port.out import ReadUserPort, UpdateAuthDTO, UpdateAuthPort, ReadAuthPort
@@ -102,6 +103,7 @@ class LoginService(LoginPort):
         self._read_user_port = read_user_port
         self._update_auth_port = update_auth_port
 
+    @transactional
     async def login(self, *, login_dto: LoginDTO) -> JWTToken:
         user_in_db = await self._read_user_port.read_user_by_name(
             username=login_dto.username
@@ -151,6 +153,7 @@ class LogoutService(LogoutPort):
     ):
         self._update_auth_port = update_auth_port
 
+    @transactional
     async def logout(self, *, user_id: UUID) -> None:
         await self._update_auth_port.update_auth(
             user_id=user_id, dto=UpdateAuthDTO(access_token=None)

@@ -11,7 +11,7 @@ def transactional(func: AsyncCallable) -> AsyncCallable:
     async def _wrapper(*args, **kwargs) -> Awaitable[Any]:
         db_session = get_current_session()
 
-        if db_session.in_transaction:
+        if db_session.in_transaction():
             return await func(*args, **kwargs)
 
         async with db_session.begin():
