@@ -2,19 +2,25 @@ from uuid import uuid4
 
 import pytest
 import pytest_asyncio
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.techlog_article.common.database import models
 
-from . import (
+from src.techlog_article.user.adapter.out.persistences import (
     UpdateUserDTO,
     CreateUserDTO,
     UserPersistenceAdapter,
     UserAuthPersistenceAdapter,
     UserRepository,
     UserAuthRepository,
+)
+
+from .sqlalchemy_utils import (
+    store_single_entity,
+    db_commit,
+    read_single_entity_by_id,
+    read_user_with_auth_by_username,
+    object_refresh,
 )
 
 
@@ -38,32 +44,42 @@ class TestUserPersistenceAdapter:
         self, db_session: AsyncSession, user_persistence_adapter: UserPersistenceAdapter
     ):
         id, username, email = uuid4(), "test", "test@test.com"
-        db_session.add(
-            models.User(id=id, username=username, email=email, hashed_password="")
+        await store_single_entity(
+            db_session=db_session,
+            orm_model=models.User,
+            id=id,
+            username=username,
+            email=email,
+            hashed_password="",
         )
-        await db_session.commit()
 
         assert await user_persistence_adapter.check_exists_by_username(username)
         assert await user_persistence_adapter.check_exists_by_email(email)
         assert await user_persistence_adapter.check_exists_by_id(id)
 
+        assert not (await user_persistence_adapter.check_exists_by_username(""))
+        assert not (await user_persistence_adapter.check_exists_by_email(""))
+        assert not (await user_persistence_adapter.check_exists_by_id(uuid4()))
+
     async def test_updates_user(
         self, db_session: AsyncSession, user_persistence_adapter: UserPersistenceAdapter
     ):
         id, username, email, hashed_password = uuid4(), "test", "test@test.com", ""
-        db_session.add(
-            models.User(
-                id=id, username=username, email=email, hashed_password=hashed_password
-            )
+        await store_single_entity(
+            db_session=db_session,
+            orm_model=models.User,
+            id=id,
+            username=username,
+            email=email,
+            hashed_password=hashed_password,
         )
-        await db_session.commit()
 
         update_user_dto = UpdateUserDTO(username="new_username", hashed_password="123")
         await user_persistence_adapter.update_user(user_id=id, dto=update_user_dto)
-        await db_session.commit()
+        await db_commit(db_session=db_session)
 
-        updated_user = await db_session.scalar(
-            select(models.User).where(models.User.id == id)
+        updated_user = await read_single_entity_by_id(
+            db_session=db_session, orm_model=models.User, id=id
         )
 
         assert updated_user.username != username
@@ -83,12 +99,10 @@ class TestUserAuthPersistenceAdapter:
             username=username, hashed_password="", email="test@test.com"
         )
         await user_auth_persistence_adapter.create_user_with_auth(dto=dto)
-        await db_session.commit()
+        await db_commit(db_session=db_session)
 
-        created_user = await db_session.scalar(
-            select(models.User)
-            .options(selectinload(models.User.auth))
-            .where(models.User.username == username)
+        created_user = await read_user_with_auth_by_username(
+            db_session=db_session, username=username
         )
         assert created_user.username == username
         assert created_user.auth is not None
@@ -103,16 +117,14 @@ class TestUserAuthPersistenceAdapter:
             username=username, hashed_password="", email="test@test.com"
         )
         await user_auth_persistence_adapter.create_user_with_auth(dto=dto)
-        await db_session.commit()
+        await db_commit(db_session=db_session)
 
-        created_user = await db_session.scalar(
-            select(models.User)
-            .options(selectinload(models.User.auth))
-            .where(models.User.username == username)
+        created_user = await read_user_with_auth_by_username(
+            db_session=db_session, username=username
         )
 
         await user_auth_persistence_adapter.delete_user_auth(user_id=created_user.id)
-        await db_session.refresh(created_user)
+        await object_refresh(db_session=db_session, object=created_user)
         deleted_user = created_user
 
         assert deleted_user.deleted_at is not None
