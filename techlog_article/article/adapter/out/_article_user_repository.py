@@ -4,7 +4,7 @@ from uuid import UUID, uuid4
 from sqlalchemy import select, func
 from sqlalchemy.orm import contains_eager, selectinload
 
-from src.techlog_article.common.database import CurrentDBSessionDependency, models
+from techlog_article.common.database import CurrentDBSessionDependency, models
 
 
 @final

@@ -3,8 +3,8 @@ from uuid import UUID
 
 from fastapi import status as HTTPStatus, HTTPException, Depends
 
-from src.techlog_article.common.utils.password import hash_password
-from src.techlog_article.common.database.utils import transactional
+from techlog_article.common.utils.password import hash_password
+from techlog_article.common.database.utils import transactional
 
 from ..adapter.out.persistences import (
     UserPersistenceAdapter,

@@ -2,7 +2,7 @@ from typing import Optional, final
 
 from sqlalchemy import select
 
-from src.techlog_article.common.database import models, CurrentDBSessionDependency
+from techlog_article.common.database import models, CurrentDBSessionDependency
 
 
 @final

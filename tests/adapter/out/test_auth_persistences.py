@@ -4,9 +4,9 @@ import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.techlog_article.common.database import models
+from techlog_article.common.database import models
 
-from src.techlog_article.auth.adapter.out.persistences import (
+from techlog_article.auth.adapter.out.persistences import (
     UserPersistenceAdapter,
     UserRepository,
     AuthPersistenceAdapter,

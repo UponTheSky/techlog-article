@@ -2,8 +2,8 @@ from typing import Annotated, Optional
 
 from fastapi import APIRouter, status, Form, Depends
 
-from src.techlog_article.common.tags import Tags
-from src.techlog_article.auth import CurrentUserIdDependency
+from techlog_article.common.tags import Tags
+from techlog_article.auth import CurrentUserIdDependency
 
 from ...application.port.in_ import (
     SignUpDTO,

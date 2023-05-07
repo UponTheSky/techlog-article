@@ -1,6 +1,6 @@
 from unittest import mock
 
-from src.techlog_article.common.database import utils
+from techlog_article.common.database import utils
 
 # this is for mocking the decoratoer
 # for details: https://www.freblogg.com/pytest-functions-mocking-1

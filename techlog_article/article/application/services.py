@@ -2,7 +2,7 @@ from typing import final, Annotated, Optional
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status as HTTPStatus
-from src.techlog_article.common.database.utils import transactional
+from techlog_article.common.database.utils import transactional
 
 from ..domain import Article
 

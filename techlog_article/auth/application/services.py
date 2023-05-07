@@ -4,16 +4,16 @@ from uuid import UUID
 from fastapi import HTTPException, status as HTTPStatus, Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from src.techlog_article.common.config import auth_config
-from src.techlog_article.common.utils.datetime import get_now_timestamp
-from src.techlog_article.common.utils.jwt import (
+from techlog_article.common.config import auth_config
+from techlog_article.common.utils.datetime import get_now_timestamp
+from techlog_article.common.utils.jwt import (
     create_token as create_jwt_token,
     JWTToken,
     JWTError,
     decode_token as decode_jwt_token,
 )
-from src.techlog_article.common.utils.password import verify_password
-from src.techlog_article.common.database.utils import transactional
+from techlog_article.common.utils.password import verify_password
+from techlog_article.common.database.utils import transactional
 
 from .port.in_ import LoginDTO, LoginPort, LogoutPort
 from .port.out import ReadUserPort, UpdateAuthDTO, UpdateAuthPort, ReadAuthPort

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel, Field
 
-from src.techlog_article.common.utils.jwt import JWTToken
+from techlog_article.common.utils.jwt import JWTToken
 
 
 class LoginDTO(BaseModel):

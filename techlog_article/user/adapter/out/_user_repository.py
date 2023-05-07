@@ -3,7 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 
-from src.techlog_article.common.database import models, CurrentDBSessionDependency
+from techlog_article.common.database import models, CurrentDBSessionDependency
 
 
 @final

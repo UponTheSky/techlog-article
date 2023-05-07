@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, status as HTTPStatus, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from src.techlog_article.common.utils.jwt import JWTToken
-from src.techlog_article.common.tags import Tags
+from techlog_article.common.utils.jwt import JWTToken
+from techlog_article.common.tags import Tags
 
 from ...application.port.in_ import LoginPort, LoginDTO, LogoutPort
 from ...application.services import CurrentUserIdDependency, LoginService, LogoutService

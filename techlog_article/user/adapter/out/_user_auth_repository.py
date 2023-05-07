@@ -4,9 +4,9 @@ from uuid import UUID, uuid4
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from src.techlog_article.common.database import CurrentDBSessionDependency
-from src.techlog_article.common.utils.datetime import get_now_datetime
-from src.techlog_article.common.database import models
+from techlog_article.common.database import CurrentDBSessionDependency
+from techlog_article.common.utils.datetime import get_now_datetime
+from techlog_article.common.database import models
 
 
 @final

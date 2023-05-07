@@ -4,12 +4,12 @@ import pytest_asyncio
 from testcontainers.postgres import PostgresContainer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.techlog_article.common.database._session import (
+from techlog_article.common.database._session import (
     get_current_session,
     set_db_session_context,
     engine,
 )
-from src.techlog_article.common.database import models
+from techlog_article.common.database import models
 
 
 # reference: https://mariogarcia.github.io/blog/2019/10/pytest_fixtures.html
