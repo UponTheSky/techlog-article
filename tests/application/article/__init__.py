@@ -1,1 +1,1 @@
-from src.techlog_article.article.application.services import *  # noqa: F403
+from techlog_article.article.application.services import *  # noqa: F403

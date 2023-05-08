@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import NoResultFound as _NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.techlog_article.common.database import models
+from techlog_article.common.database import models
 
 """
 General cases
