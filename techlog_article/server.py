@@ -34,7 +34,7 @@ _app = FastAPI(
 # middlewares
 _app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # TODO: delete after deployment
+    allow_origins=["*"],  # TODO: delete after deployment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,7 +42,7 @@ _app.add_middleware(
 _app.add_middleware(HTTPSRedirectMiddleware)
 # remark: if you don't include "testserver", we get 400 errors when testing
 _app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=["localhost", "testserver"]
+    TrustedHostMiddleware, allowed_hosts=["*"]
 )  # TODO: change this to our FE server
 
 
@@ -61,5 +61,12 @@ _app.add_exception_handler(
     exc_class_or_status_code=ValidationError,
     handler=request_validation_exception_handler,
 )
+
+
+# TODO: just for testing => remove after deployed
+@_app.get("/")
+def index():
+    return "hey"
+
 
 app = _app
