@@ -18,4 +18,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./techlog_article /code/techlog_article
 
-CMD ["uvicorn", "techlog_article.main:app"]
+CMD ["python3", "main.py"]

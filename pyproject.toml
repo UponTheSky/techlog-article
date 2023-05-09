@@ -26,6 +26,7 @@ alembic = "^1.11.0"
 pytest = "^7.3.1"
 pytest-asyncio = "^0.21.0"
 testcontainers-postgres = "^0.0.1rc1"
+alembic = "^1.10.4"
 
 [tool.ruff]
 
