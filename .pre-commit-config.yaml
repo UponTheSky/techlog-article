@@ -36,4 +36,4 @@ repos:
     - id: poetry-check
     # - id: poetry-lock => we omit this because we want our dependencies to be "locked" when developed
     - id: poetry-export
-      args: ["--without-hashes", "--with", "dev", "-o", "requirements.txt"]
+      args: ["--without-hashes", "--with", "test", "-o", "requirements.txt"]
