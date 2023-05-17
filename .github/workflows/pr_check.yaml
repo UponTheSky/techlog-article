@@ -1,0 +1,23 @@
+name: 'Pull Request check'
+
+on:
+  push:
+    paths-ignore:
+      - alembic.ini
+      - 'db_migration/**'
+      - README.md
+      - 'docs/**'
+
+# reference: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+jobs:
+  check-pull-request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout the repo
+        uses: actions/checkout@v3
+      - name: run dependencies action
+        uses: ./.github/actions/dependencies
+        with:
+          python-version: '3.9'
+      - name: run test action
+        uses: ./.github/actions/test

@@ -1,0 +1,14 @@
+name: test
+description: test python project with pytest & testcontainer-postgres
+
+# remark:
+# Due to the limit of the Github Actions, it is quite tricky
+# to run tests using testcontainers(DinD). Hence for a while,
+# we only want those tests to be run locally.
+
+runs:
+  using: composite
+  steps:
+    - name: run pytest
+      run: pytest --ignore-glob='**/out/*'
+      shell: bash

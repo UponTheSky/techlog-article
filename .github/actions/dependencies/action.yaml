@@ -1,0 +1,22 @@
+# reference: https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
+name: dependencies
+description: prepare for required python dependencies
+
+inputs:
+  python-version:
+    description: Python version
+    required: false
+    default: '3.9'
+
+runs:
+  using: composite
+  steps:
+    - name: setup the python environment
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install --no-cache-dir -r requirements.txt
+      shell: bash

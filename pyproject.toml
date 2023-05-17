@@ -10,7 +10,6 @@ readme = "README.md"
 python = "^3.9"
 fastapi = "^0.95.1"
 sqlalchemy = "^2.0.9"
-alembic = "^1.10.3"
 python-multipart = "^0.0.6"
 uvicorn = "^0.21.1"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
@@ -20,8 +19,11 @@ httpx = "^0.24.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
-pytest = "^7.2.2"
 ruff = "^0.0.254"
+alembic = "^1.11.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.3.1"
 pytest-asyncio = "^0.21.0"
 testcontainers-postgres = "^0.0.1rc1"
 

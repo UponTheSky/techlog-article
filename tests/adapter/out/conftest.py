@@ -11,7 +11,6 @@ from techlog_article.common.database._session import (
 )
 from techlog_article.common.database import models
 
-
 # reference: https://mariogarcia.github.io/blog/2019/10/pytest_fixtures.html
 
 POSTGRES_VERSION = "15.0"
