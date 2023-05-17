@@ -113,21 +113,23 @@ class LoginService(LoginPort):
                 status_code=HTTPStatus.HTTP_404_NOT_FOUND,
                 detail=f"User with username {login_dto.username}\
                      doesn't exist in the DB",
+                headers={"WWW-authenticate": "Bearer"},
             )
 
         self._verify_password(
-            password=login_dto.username, hashed_password=user_in_db.hashed_password
+            password=login_dto.password, hashed_password=user_in_db.hashed_password
         )
-        access_token = self._issue_access_token(
+        token_payload = self._issue_access_token(
             user_id=user_in_db.id,
             is_admin=user_in_db.username == auth_config.ADMIN_USERNAME,
         )
 
         await self._update_auth_port.update_auth(
-            user_id=user_in_db.id, dto=UpdateAuthDTO(access_token=access_token)
+            user_id=user_in_db.id,
+            dto=UpdateAuthDTO(access_token=token_payload.access_token),
         )
 
-        return access_token
+        return token_payload
 
     def _verify_password(self, *, password: str, hashed_password: str) -> None:
         if not verify_password(password=password, hashed_password=hashed_password):

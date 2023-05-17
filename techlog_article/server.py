@@ -11,6 +11,7 @@ from .article.adapter.in_.controllers import router as article_router
 
 from .common.tags import Tags
 from .common.database import db_session_middleware_function
+from .common.config import config
 
 _app = FastAPI(
     title="techlog-article",
@@ -18,7 +19,7 @@ _app = FastAPI(
     version="0.0.1",
     contact={
         "name": "Sung Ju Yea",
-        "url": "TBA",  # TODO: add url of the FE homepage
+        "url": "https://github.com/uponTheSky/",
         "email": "sungju.yea@gmail.com",
     },
     openapi_tags=[
@@ -31,19 +32,21 @@ _app = FastAPI(
     ],
 )
 
+# TODO: revisit before deployment
+
 # middlewares
 _app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # TODO: delete after deployment
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-_app.add_middleware(HTTPSRedirectMiddleware)
-# remark: if you don't include "testserver", we get 400 errors when testing
-_app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=["*"]
-)  # TODO: change this to our FE server
+
+if not (config.DEBUG or config.ENV == "local"):
+    _app.add_middleware(HTTPSRedirectMiddleware)
+
+_app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
 
 @_app.middleware("http")
@@ -65,8 +68,8 @@ _app.add_exception_handler(
 
 # TODO: just for testing => remove after deployed
 @_app.get("/")
-def index():
-    return "hey"
+async def index():
+    return {"hey": "How are ya"}
 
 
 app = _app

@@ -18,4 +18,6 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./techlog_article /code/techlog_article
 
-CMD ["python3", "main.py"]
+COPY ./main.py /code/
+
+CMD ["python", "./main.py"]
