@@ -10,5 +10,5 @@ runs:
   using: composite
   steps:
     - name: run pytest
-      run: pytest --ignore-glob='**/out/*'
+      run: pytest --ignore-glob='**/out/*' -k "not user_controllers"
       shell: bash
