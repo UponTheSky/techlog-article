@@ -1,6 +1,6 @@
 import uvicorn
-from techlog_article import app  # noqa: F401
 
+from techlog_article.server import app  # noqa: F401
 from techlog_article.common.config import config
 
 if __name__ == "__main__":

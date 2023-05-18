@@ -11,7 +11,7 @@ from . import (
     CreateArticleService,
     ReadArticeService,
     UpdateArticeService,
-    AuthTokenCheckServiceDependency,
+    check_auth_token,
     ReadArticleInPort,
 )
 
@@ -23,7 +23,7 @@ def client() -> TestClient:
             CreateArticleService: lambda: mock.AsyncMock(),
             ReadArticeService: lambda: mock.AsyncMock(spec=ReadArticleInPort),
             UpdateArticeService: lambda: mock.AsyncMock(),
-            AuthTokenCheckServiceDependency: lambda: uuid4(),
+            check_auth_token: lambda: uuid4(),
         }
     )
 

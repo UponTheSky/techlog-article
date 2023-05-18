@@ -10,7 +10,7 @@ from . import (
     SignUpService,
     UpdateAccountService,
     SignOutService,
-    AuthTokenCheckServiceDependency,
+    check_auth_token,
 )
 
 
@@ -21,7 +21,7 @@ def client() -> TestClient:
             SignUpService: lambda: mock.AsyncMock(),
             UpdateAccountService: lambda: mock.AsyncMock(),
             SignOutService: lambda: mock.AsyncMock(),
-            AuthTokenCheckServiceDependency: lambda: uuid4(),
+            check_auth_token: lambda: uuid4(),
         }
     )
 
