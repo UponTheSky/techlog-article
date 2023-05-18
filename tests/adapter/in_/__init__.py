@@ -1,7 +1,7 @@
 from techlog_article.server import app  # noqa: F401
 from techlog_article.auth import CurrentUserIdDependency  # noqa: F401
 from techlog_article.auth.application.services import (
-    AuthTokenCheckServiceDependency,  # noqa: F401
+    check_auth_token,  # noqa: F401
 )
 
 from techlog_article.user.adapter.in_.controllers import *  # noqa: F403

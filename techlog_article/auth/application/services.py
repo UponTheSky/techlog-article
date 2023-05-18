@@ -24,72 +24,64 @@ from ..adapter.out.persistences import UserPersistenceAdapter, AuthPersistenceAd
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
-@final
-class AuthTokenCheckService:
-    def __init__(
-        self,
-        *,
-        read_auth_port: Annotated[ReadAuthPort, Depends(AuthPersistenceAdapter)],
-    ):
-        self._read_auth_port = read_auth_port
-
-    async def __call__(self, *, token: Annotated[str, Depends(oauth2_scheme)]) -> UUID:
-        try:
-            payload = self._decode_token(token)
-
-            # check the user's id
-            user_id = payload.get("sub")
-
-            # invalid case 1: invalid token
-            if not user_id:
-                raise self._get_credentials_exception("Could not validate credentials")
-
-            user_id = UUID(user_id)
-
-            # invalid case 2: expired token
-            expired_at = int(payload.get("exp"))
-            if expired_at < get_now_timestamp():
-                raise self._get_credentials_exception("The token has expired")
-            """
-            Remark: The parts involving the DB will be available after
-            adding the Redis cache layer afterward
-            """
-            # auth_in_db = await self._read_auth_port.read_auth_by_user_id(
-            #     user_id=user_id
-            # )
-
-            # invalid case 3: the user not is not in the DB or deleted
-            # if not auth_in_db or auth_in_db.deleted_at:
-            #     raise self.get_credentials_exception("The user doesn't exist anymore")
-
-            # invalid case 4: the token is stale(the user logged out before)
-            # if not auth_in_db.access_token:
-            #     raise self.get_credentials_exception(
-            #         "The token is stale: the user must re-login"
-            #     )
-
-            return user_id
-
-        except (JWTError, ValueError):
-            raise self._get_credentials_exception(
-                "Token error: Could not validate credentials"
-            )
-
-    @staticmethod
-    def _get_credentials_exception(message: str) -> HTTPException:
-        return HTTPException(
-            status_code=HTTPStatus.HTTP_401_UNAUTHORIZED,
-            detail=message,
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    @staticmethod
-    def _decode_token(*, token: str) -> dict[str, str]:
-        return decode_jwt_token(token)
+def _get_credentials_exception(message: str) -> HTTPException:
+    return HTTPException(
+        status_code=HTTPStatus.HTTP_401_UNAUTHORIZED,
+        detail=message,
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 
-AuthTokenCheckServiceDependency = Annotated[AuthTokenCheckService, Depends()]
-CurrentUserIdDependency = Annotated[UUID, Depends(AuthTokenCheckServiceDependency)]
+def _decode_token(*, token: str) -> dict[str, str]:
+    return decode_jwt_token(token)
+
+
+async def check_auth_token(
+    *,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    read_auth_port: Annotated[ReadAuthPort, Depends(AuthPersistenceAdapter)],
+) -> UUID:
+    try:
+        payload = _decode_token(token=token)
+
+        # check the user's id
+        user_id = payload.get("sub")
+
+        # invalid case 1: invalid token
+        if not user_id:
+            raise _get_credentials_exception("Could not validate credentials")
+
+        user_id = UUID(user_id)
+
+        # invalid case 2: expired token
+        expired_at = int(payload.get("exp"))
+        if expired_at < get_now_timestamp():
+            raise _get_credentials_exception("The token has expired")
+        """
+        Remark: The parts involving the DB will be available after
+        adding the Redis cache layer afterward
+        """
+        # auth_in_db = await self._read_auth_port.read_auth_by_user_id(
+        #     user_id=user_id
+        # )
+
+        # invalid case 3: the user not is not in the DB or deleted
+        # if not auth_in_db or auth_in_db.deleted_at:
+        #     raise self.get_credentials_exception("The user doesn't exist anymore")
+
+        # invalid case 4: the token is stale(the user logged out before)
+        # if not auth_in_db.access_token:
+        #     raise self.get_credentials_exception(
+        #         "The token is stale: the user must re-login"
+        #     )
+
+        return user_id
+
+    except (JWTError, ValueError):
+        raise _get_credentials_exception("Token error: Could not validate credentials")
+
+
+CurrentUserIdDependency = Annotated[UUID, Depends(check_auth_token)]
 
 
 @final
