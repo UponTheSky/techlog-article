@@ -4,9 +4,10 @@ from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.exception_handlers import request_validation_exception_handler
 from pydantic import ValidationError
+from mangum import Mangum
 
 from .auth.adapter.in_.controllers import router as auth_router
-from .user.adapter.in_.controllers import router as user_router
+from .user.adapter.in_.controllers import router as user_router  # noqa: F401
 from .article.adapter.in_.controllers import router as article_router
 
 from .common.tags import Tags
@@ -57,7 +58,17 @@ async def db_session_middleware(request: Request, call_next):
 # routers
 _app.include_router(article_router)
 _app.include_router(auth_router)
-_app.include_router(user_router)
+
+"""
+Here we disallow the user service to be used by the users.
+This is becaue we don't want to allow the users to create accounts
+and write articles in our application.
+
+The purposes of this implementation is to demonstrate
+- how I understand RDBMS(Postgres)
+- how I understand the basic process of user authentification
+"""
+# _app.include_router(user_router)
 
 # error handler
 _app.add_exception_handler(
@@ -66,10 +77,9 @@ _app.add_exception_handler(
 )
 
 
-# TODO: just for testing => remove after deployed
-@_app.get("/")
-async def index():
-    return {"hey": "How are ya"}
+@_app.get("/health")
+async def health_check():
+    return {"message": "The backend WAS works okay"}
 
 
-app = _app
+app = Mangum(_app)

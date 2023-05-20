@@ -20,4 +20,7 @@ COPY ./techlog_article /code/techlog_article
 
 COPY ./main.py /code/
 
+# this should change in production, such as ENV="production"
+ENV ENV="local_docker"
+
 CMD ["python", "./main.py"]

@@ -38,16 +38,25 @@ class AuthLocalConfig(BaseSettings):
     ADMIN_USERNAME: str = "test"
 
 
+class LocalDockerConfig(LocalConfig):
+    ENV: str = "local_docker"
+    APP_HOST: str = "0.0.0.0"
+
+
+class AuthLocalDockerConfig(AuthLocalConfig):
+    ...
+
+
 def get_config() -> Union[BaseConfig, LocalConfig]:
     env = os.getenv("ENV", "local")
-    config_type = {"local": LocalConfig()}
+    config_type = {"local": LocalConfig(), "local_docker": LocalDockerConfig()}
 
     return config_type[env]
 
 
 def get_auth_config() -> Union[AuthBaseConfig, AuthLocalConfig]:
     env = os.getenv("ENV", "local")
-    config_type = {"local": AuthLocalConfig()}
+    config_type = {"local": AuthLocalConfig(), "local_docker": AuthLocalDockerConfig()}
 
     return config_type[env]
 
