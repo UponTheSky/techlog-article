@@ -4,6 +4,7 @@ from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.exception_handlers import request_validation_exception_handler
 from pydantic import ValidationError
+from mangum import Mangum
 
 from .auth.adapter.in_.controllers import router as auth_router
 from .user.adapter.in_.controllers import router as user_router  # noqa: F401
@@ -81,4 +82,4 @@ async def health_check():
     return {"message": "The backend WAS works okay"}
 
 
-app = _app
+app = Mangum(_app)
