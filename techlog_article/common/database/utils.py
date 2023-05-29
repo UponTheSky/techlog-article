@@ -2,7 +2,7 @@ from typing import Callable, Awaitable, Any
 import functools
 
 from ..utils.logger import get_logger
-from ._session import get_current_session
+from ._session import get_current_session, get_db_session_context
 
 
 AsyncCallable = Callable[..., Awaitable]
@@ -24,7 +24,8 @@ def transactional(func: AsyncCallable) -> AsyncCallable:
 
             return return_value
         except Exception as error:
-            logger.error(error)
+            logger.info(f"request hash: {get_db_session_context()}")
+            logger.exception(error)
             raise
 
     return _wrapper
