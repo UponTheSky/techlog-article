@@ -32,6 +32,11 @@ _app = FastAPI(
     ],
 )
 
+# swagger ui: turn off in production
+if config.DEBUG:
+    _app.docs_url = None
+    _app.redoc_url = None
+
 # TODO: revisit before deployment
 
 # middlewares
