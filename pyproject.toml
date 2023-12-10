@@ -7,19 +7,18 @@ license = "Proprietary"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-fastapi = "^0.95.1"
-sqlalchemy = "^2.0.9"
+python = "^3.11"
+fastapi = {extras = ["full"], version = "^0.104.1"}
+sqlalchemy = "^2.0.23"
 python-multipart = "^0.0.6"
 uvicorn = "^0.21.1"
-python-jose = {extras = ["cryptography"], version = "^3.3.0"}
-passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-asyncpg = "^0.27.0"
-httpx = "^0.24.0"
+python-jose = { extras = ["cryptography"], version = "^3.3.0" }
+passlib = { extras = ["bcrypt"], version = "^1.7.4" }
+asyncpg = "^0.29.0"
+httpx = "^0.25.2"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.1.0"
-ruff = "^0.0.254"
+ruff = "^0.1.7"
 alembic = "^1.11.0"
 
 [tool.poetry.group.test.dependencies]

@@ -13,6 +13,10 @@ from .common.tags import Tags
 from .common.database import db_session_middleware_function
 from .common.config import config
 
+from .common.utils.logger import get_logger
+
+logger = get_logger(filename=__file__)
+
 _app = FastAPI(
     title="techlog-article",
     description="The backend API of my personal tech blog article",
@@ -48,7 +52,7 @@ _app.add_middleware(
     allow_headers=["*"],
 )
 
-if not (config.DEBUG or config.ENV == "local"):
+if not (config.DEBUG or config.ENV in ("local", "local_docker")):
     _app.add_middleware(HTTPSRedirectMiddleware)
 
 _app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
@@ -57,6 +61,15 @@ _app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 @_app.middleware("http")
 async def db_session_middleware(request: Request, call_next):
     return await db_session_middleware_function(request, call_next)
+
+@_app.middleware("http")
+async def logging_exceptions(request: Request, call_next):
+    try:
+        return await call_next(request)
+
+    except Exception as error:
+        logger.error(error)
+        # TODO: add sentry here
 
 
 # routers
