@@ -15,7 +15,7 @@ from .common.config import config
 
 from .common.utils.logger import get_logger
 
-logger = get_logger()
+logger = get_logger(filename=__file__)
 
 _app = FastAPI(
     title="techlog-article",
