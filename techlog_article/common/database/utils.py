@@ -2,18 +2,20 @@ from typing import Callable, Awaitable, Any
 import functools
 
 from ..utils.logger import get_logger
-from ._session import get_current_session, get_db_session_context
+from ._session import get_session_manager
 
 
 AsyncCallable = Callable[..., Awaitable]
 logger = get_logger(filename=__file__)
+
+session_manager = get_session_manager()
 
 
 def transactional(func: AsyncCallable) -> AsyncCallable:
     @functools.wraps(func)
     async def _wrapper(*args, **kwargs) -> Awaitable[Any]:
         try:
-            db_session = get_current_session()
+            db_session = session_manager.get_current_session()
 
             if db_session.in_transaction():
                 return await func(*args, **kwargs)
@@ -24,7 +26,7 @@ def transactional(func: AsyncCallable) -> AsyncCallable:
 
             return return_value
         except Exception as error:
-            logger.info(f"request hash: {get_db_session_context()}")
+            logger.info(f"request hash: {session_manager.get_db_session_context()}")
             logger.exception(error)
             raise
 

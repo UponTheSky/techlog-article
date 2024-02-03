@@ -10,7 +10,7 @@ class BaseConfig(BaseSettings):
     APP_HOST: str
     APP_PORT: int
     DB_URL: str  # postgres
-    DB_TYPE: Literal["document", "postgres"]
+    DB_TYPE: Literal["firestore", "postgres"]
 
 
 class AuthBaseConfig(BaseSettings):
@@ -27,7 +27,7 @@ class LocalConfig(BaseConfig):
     APP_HOST: str = "127.0.0.1"
     APP_PORT: int = 8000
     DB_URL: str = ""
-    DB_TYPE: Literal["document", "postgres"] = "document"
+    DB_TYPE: Literal["firestore", "postgres"] = "firestore"
 
 
 class AuthLocalConfig(BaseSettings):
