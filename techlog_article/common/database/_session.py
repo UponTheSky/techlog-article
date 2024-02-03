@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from google.cloud import firestore
+from ._firestore import FirestoreSessionFactory
 
 from ..config import config, gcp_infra_config
 
@@ -68,23 +69,13 @@ class _SessionManager:
             )
 
         else:  # config.DB_TYPE = "firestore"
-            self._session_cache: dict[int, firestore.AsyncClient] = {}
-
-            def _firestore_session_factory() -> firestore.AsyncClient:
-                db_session_context = (
-                    self._session_context_manager.get_db_session_context()
-                )
-
-                if db_session_context not in self._session_cache:
-                    self._session_cache[db_session_context] = firestore.AsyncClient(
-                        project=gcp_infra_config.PROJECT_ID,
-                        credentials=gcp_infra_config.GOOGLE_APPLICATION_CREDENTIALS,
-                        database=gcp_infra_config.FIRESTORE_DB_NAME,
-                    )
-
-                return self._session_cache[db_session_context]
-
-            self._session_factory = _firestore_session_factory
+            self._session_factory = FirestoreSessionFactory(
+                session_cache=dict(),
+                session_context_getter=self._session_context_manager.get_db_session_context,
+                gcp_project_id=gcp_infra_config.PROJECT_ID,
+                gcp_credentials_path=gcp_infra_config.GOOGLE_APPLICATION_CREDENTIALS,
+                database_name=gcp_infra_config.FIRESTORE_DB_NAME,
+            )
 
     def get_db_session_context(self) -> int:
         return self._session_context_manager.get_db_session_context()
@@ -97,10 +88,11 @@ class _SessionManager:
 
     async def remove_current_session(self) -> None:
         if config.DB_TYPE == "postgres":
-            cast(async_scoped_session[AsyncSession], self._session_factory).remove()
+            await cast(
+                async_scoped_session[AsyncSession], self._session_factory
+            ).remove()
 
         elif config.DB_TYPE == "firestore":
-            current_session_context = self.get_db_session_context()
-
-            if current_session_context in self._session_cache:
-                del self._session_cache[current_session_context]
+            cast(
+                FirestoreSessionFactory, self._session_factory
+            ).remove_current_session()
