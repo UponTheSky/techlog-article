@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from techlog_article.common.database._session import (
     get_current_session,
     set_db_session_context,
-    engine,
+    postgres_engine,
 )
 from techlog_article.common.database import models
 
@@ -29,7 +29,7 @@ async def db_session():
     # in order to use models.Base.metadata.create_all, we have to use connection
     # instead of the session
     # see the examples in: https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html
-    async with engine.begin() as connection:
+    async with postgres_engine.begin() as connection:
         await connection.run_sync(models.Base.metadata.create_all)
 
     # get the session(setting the context should occur beforehand)

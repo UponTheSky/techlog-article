@@ -42,7 +42,7 @@ class SignUpService(SignUpPort, _HashPasswordMixin):
         check_user_port: Annotated[CheckUserPort, Depends(UserPersistenceAdapter)],
         create_user_auth_port: Annotated[
             CreateUserAuthPort, Depends(UserAuthPersistenceAdapter)
-        ]
+        ],
     ):
         self._check_user_port = check_user_port
         self._create_user_port = create_user_auth_port
@@ -103,7 +103,7 @@ class UpdateAccountService(UpdateAccountPort, _HashPasswordMixin):
         self,
         *,
         check_user_port: Annotated[CheckUserPort, Depends(UserPersistenceAdapter)],
-        update_user_port: Annotated[UpdateUserPort, Depends(UserPersistenceAdapter)]
+        update_user_port: Annotated[UpdateUserPort, Depends(UserPersistenceAdapter)],
     ):
         self._check_user_port = check_user_port
         self._update_user_port = update_user_port

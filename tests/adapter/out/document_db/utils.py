@@ -87,7 +87,7 @@ async def store_user_with_article(
     article_title: str,
     content: Optional[str] = None,
     user_deleted_at: Optional[datetime] = None,
-    article_deleted_at: Optional[datetime] = None
+    article_deleted_at: Optional[datetime] = None,
 ) -> None:
     user_orm = models.User(
         id=user_id,

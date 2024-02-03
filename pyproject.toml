@@ -16,6 +16,7 @@ python-jose = { extras = ["cryptography"], version = "^3.3.0" }
 passlib = { extras = ["bcrypt"], version = "^1.7.4" }
 asyncpg = "^0.29.0"
 httpx = "^0.25.2"
+google-cloud-firestore = "^2.14.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.1.7"
@@ -26,6 +27,7 @@ pytest = "^7.3.1"
 pytest-asyncio = "^0.21.0"
 testcontainers-postgres = "^0.0.1rc1"
 alembic = "^1.10.4"
+testcontainers-mongodb = "^0.0.1rc1"
 
 [tool.ruff]
 
