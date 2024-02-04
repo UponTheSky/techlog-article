@@ -28,13 +28,13 @@ def store_single_entity(
 
 def read_single_entity_by_id(
     *, db_instance: Database, collection_name: str, id: UUID
-) -> dict:
+) -> Optional[dict]:
     return db_instance.get_collection(name=collection_name).find_one({"id": id})
 
 
 def read_single_entity_by_field(
     *, db_instance: Database, collection_name: str, field_name: str, field_value: Any
-) -> dict:
+) -> Optional[dict]:
     return db_instance.get_collection(name=collection_name).find_one(
         {field_name: field_value}
     )
