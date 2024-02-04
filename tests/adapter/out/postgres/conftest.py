@@ -2,18 +2,17 @@ import os
 
 import pytest_asyncio
 from testcontainers.postgres import PostgresContainer
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
-from techlog_article.common.database._session import (
-    get_current_session,
-    set_db_session_context,
-    engine,
-)
+from techlog_article.common.database._session import get_session_manager
 from techlog_article.common.database import models
+from techlog_article.common.config import config
 
 # reference: https://mariogarcia.github.io/blog/2019/10/pytest_fixtures.html
 
 POSTGRES_VERSION = "15.0"
+
+session_manager = get_session_manager()
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -29,12 +28,14 @@ async def db_session():
     # in order to use models.Base.metadata.create_all, we have to use connection
     # instead of the session
     # see the examples in: https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html
-    async with engine.begin() as connection:
+    postgres_engine = create_async_engine(url=config.DB_URL)
+
+    async with postgres_engine.begin() as connection:
         await connection.run_sync(models.Base.metadata.create_all)
 
     # get the session(setting the context should occur beforehand)
-    set_db_session_context(session_id=42)
-    current_session = get_current_session()
+    session_manager.set_db_session_context(session_id=42)
+    current_session = session_manager.get_current_session()
 
     yield current_session
 

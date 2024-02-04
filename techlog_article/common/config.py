@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Literal
 import os
 
 from pydantic import BaseSettings
@@ -9,7 +9,8 @@ class BaseConfig(BaseSettings):
     DEBUG: bool
     APP_HOST: str
     APP_PORT: int
-    DB_URL: str
+    DB_URL: str  # postgres
+    DB_TYPE: Literal["firestore", "postgres"]
 
 
 class AuthBaseConfig(BaseSettings):
@@ -25,9 +26,8 @@ class LocalConfig(BaseConfig):
     DEBUG: bool = True
     APP_HOST: str = "127.0.0.1"
     APP_PORT: int = 8000
-    DB_URL: str = (
-        "postgresql+asyncpg://db_admin:1Q2w3e4r!@localhost:5432/techlog_article"
-    )
+    DB_URL: str = ""
+    DB_TYPE: Literal["firestore", "postgres"] = "firestore"
 
 
 class AuthLocalConfig(BaseSettings):
@@ -47,6 +47,12 @@ class AuthLocalDockerConfig(AuthLocalConfig):
     ...
 
 
+class GCPInfraConfig(BaseSettings):
+    PROJECT_ID: str = ""
+    GOOGLE_APPLICATION_CREDENTIALS: str = ""
+    FIRESTORE_DB_NAME: str = ""
+
+
 def get_config() -> Union[BaseConfig, LocalConfig]:
     env = os.getenv("ENV", "local")
     config_type = {"local": LocalConfig(), "local_docker": LocalDockerConfig()}
@@ -61,5 +67,12 @@ def get_auth_config() -> Union[AuthBaseConfig, AuthLocalConfig]:
     return config_type[env]
 
 
+def get_gcp_infra_config() -> GCPInfraConfig:
+    """The actual values will only be used in production"""
+
+    return GCPInfraConfig()
+
+
 config = get_config()
 auth_config = get_auth_config()
+gcp_infra_config = get_gcp_infra_config()

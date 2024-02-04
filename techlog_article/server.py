@@ -62,6 +62,7 @@ _app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 async def db_session_middleware(request: Request, call_next):
     return await db_session_middleware_function(request, call_next)
 
+
 @_app.middleware("http")
 async def logging_exceptions(request: Request, call_next):
     try:

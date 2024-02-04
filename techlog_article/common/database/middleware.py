@@ -2,7 +2,9 @@ from typing import Callable, Awaitable
 
 from fastapi import Request, Response, status as HTTPStatus
 
-from ._session import set_db_session_context, AsyncScopedSession
+from ._session import get_session_manager
+
+session_manager = get_session_manager()
 
 
 async def db_session_middleware_function(
@@ -13,11 +15,13 @@ async def db_session_middleware_function(
     )
 
     try:
-        set_db_session_context(session_id=hash(request))
+        session_manager.set_db_session_context(session_id=hash(request))
         response = await call_next(request)
 
     finally:
-        await AsyncScopedSession.remove()  # this includes closing the session as well
-        set_db_session_context(session_id=None)
+        await (
+            session_manager.remove_current_session()
+        )  # this includes closing the session as well
+        session_manager.set_db_session_context(session_id=None)
 
     return response

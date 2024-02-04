@@ -28,7 +28,7 @@ async def sign_up(
     email: str = Form(),
     password: str = Form(),
     password_recheck: str = Form(),
-    sign_up_port: Annotated[SignUpPort, Depends(SignUpService)]
+    sign_up_port: Annotated[SignUpPort, Depends(SignUpService)],
 ) -> None:
     sign_up_dto = SignUpDTO(
         username=username,
@@ -49,7 +49,7 @@ async def update_user_account(
     email: Optional[str] = Form(default=None),
     password: Optional[str] = Form(default=None),
     password_recheck: Optional[str] = Form(default=None),
-    update_account_port: Annotated[UpdateAccountPort, Depends(UpdateAccountService)]
+    update_account_port: Annotated[UpdateAccountPort, Depends(UpdateAccountService)],
 ) -> None:
     await update_account_port.update_account(
         user_id=user_id,
@@ -68,7 +68,7 @@ async def update_user_account(
 async def sign_out(
     *,
     user_id: CurrentUserIdDependency,
-    sign_out_port: Annotated[SignOutPort, Depends(SignOutService)]
+    sign_out_port: Annotated[SignOutPort, Depends(SignOutService)],
 ) -> None:
     await sign_out_port.sign_out(user_id=user_id)
 
