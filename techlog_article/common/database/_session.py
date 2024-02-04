@@ -19,9 +19,39 @@ from ..config import config, gcp_infra_config
 SessionType = AsyncSession | firestore.AsyncClient
 
 
+def make_session_manager() -> _SessionContextManager:
+    # session context manager
+    session_context_manager = _SessionContextManager()
+
+    # session factories
+    if config.DB_TYPE == "postgres":
+        postgres_engine = create_async_engine(url=config.DB_URL)
+
+        # AsyncScopedSession(in the official docs)
+        session_factory = async_scoped_session(
+            session_factory=async_sessionmaker(
+                bind=postgres_engine, autoflush=False, autocommit=False
+            ),
+            scopefunc=session_context_manager.get_db_session_context,
+        )
+
+    else:  # config.DB_TYPE = "firestore"
+        session_factory = FirestoreSessionFactory(
+            session_cache=dict(),
+            session_context_getter=session_context_manager.get_db_session_context,
+            gcp_project_id=gcp_infra_config.PROJECT_ID,
+            gcp_credentials_path=gcp_infra_config.GOOGLE_APPLICATION_CREDENTIALS,
+            database_name=gcp_infra_config.FIRESTORE_DB_NAME,
+        )
+
+    return _SessionManager(
+        session_context_manager=session_context_manager, session_factory=session_factory
+    )
+
+
 @functools.cache
 def get_session_manager() -> _SessionManager:
-    return _SessionManager()
+    return make_session_manager()
 
 
 class _SessionContextManager:
@@ -53,29 +83,14 @@ class _SessionManager:
     referemce: https://github.com/teamhide/fastapi-boilerplate/blob/master/core/db/session.py
     """
 
-    def __init__(self):
-        self._session_context_manager = _SessionContextManager()
-
-        # session factories
-        if config.DB_TYPE == "postgres":
-            postgres_engine = create_async_engine(url=config.DB_URL)
-
-            # AsyncScopedSession(in the official docs)
-            self._session_factory = async_scoped_session(
-                session_factory=async_sessionmaker(
-                    bind=postgres_engine, autoflush=False, autocommit=False
-                ),
-                scopefunc=self._session_context_manager.get_db_session_context,
-            )
-
-        else:  # config.DB_TYPE = "firestore"
-            self._session_factory = FirestoreSessionFactory(
-                session_cache=dict(),
-                session_context_getter=self._session_context_manager.get_db_session_context,
-                gcp_project_id=gcp_infra_config.PROJECT_ID,
-                gcp_credentials_path=gcp_infra_config.GOOGLE_APPLICATION_CREDENTIALS,
-                database_name=gcp_infra_config.FIRESTORE_DB_NAME,
-            )
+    def __init__(
+        self,
+        *,
+        session_context_manager: _SessionContextManager,
+        session_factory: async_scoped_session[AsyncSession] | FirestoreSessionFactory,
+    ):
+        self._session_context_manager = session_context_manager
+        self._session_factory = session_factory
 
     def get_db_session_context(self) -> int:
         return self._session_context_manager.get_db_session_context()
