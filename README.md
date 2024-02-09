@@ -12,8 +12,8 @@
 
 ## Tech Stack
 - This project uses the following list of technologies
-  - Backend Framework: FastAPI with [Python](https://www.python.org/) version 3.9
-  - Database: [PostgreSQL](https://www.postgresql.org/) with [SQLAlchemy 2.0](https://docs.sqlalchemy.org/en/20/)
+  - Backend Framework: FastAPI with [Python](https://www.python.org/) version 3.11
+  - Database: we use [PostgreSQL](https://www.postgresql.org/) with [SQLAlchemy 2.0](https://docs.sqlalchemy.org/en/20/)
     - for the driver adapter, I use [asyncpg]((https://docs.sqlalchemy.org/en/20/dialects/postgresql.html#module-sqlalchemy.dialects.postgresql.asyncpg)); this is because I wanted to implement the I/O operations as asynchrous ones as much as possible
     - for database migration, I use [alembic 1.10.3](https://alembic.sqlalchemy.org/en/latest/)
     - why choose alembic over other ORM-agonostic tools such as flyway or liquibase?: see [this link on how we usually organize a microservice and its DB](https://www.prisma.io/dataguide/managing-databases/microservices-vs-monoliths#how-do-microservices-affect-database-architecture)
@@ -27,11 +27,11 @@
 
   - CI/CD tools
     - [Github Actions](https://docs.github.com/en/actions)(cloud vendor specific deployment workflows are to be added in the production code)
+    - [Terraform](https://www.terraform.io/) is used for managing the overall infrastructure
 
 - These are the tools that I will adopt in the near future
   - Cache layer: [Redis](https://redis.io/)
   - Monitoring tool: [Sentry](https://sentry.io/welcome/)
-  - [Terraform](https://www.terraform.io/)
   - test coverage tool
 
 
