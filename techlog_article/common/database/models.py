@@ -75,6 +75,7 @@ class Article(TimestampMixin, Base):
     author_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), index=True)
     title: Mapped[str] = mapped_column(String(32))
     content: Mapped[Optional[str]] = mapped_column(Text)
+    thumbnail_url: Mapped[Optional[str]] = mapped_column(Text)
 
     # relatioship
     author: Mapped[User] = relationship(back_populates="articles")

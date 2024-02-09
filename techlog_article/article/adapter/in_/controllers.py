@@ -55,7 +55,10 @@ async def create_article(
 ) -> None:
     await create_article_service.create_article(
         dto=CreateArticleInDTO(
-            title=body.title, content=body.content, author_id=author_id
+            title=body.title,
+            content=body.content,
+            author_id=author_id,
+            thumbnail_url=body.thumbnail_url,
         )
     )
 
