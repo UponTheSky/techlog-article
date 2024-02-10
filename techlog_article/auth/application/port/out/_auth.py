@@ -8,7 +8,7 @@ from ....domain import Auth
 
 
 class UpdateAuthDTO(BaseModel):
-    access_token: Optional[str]
+    access_token: Optional[str] = None
 
 
 class UpdateAuthPort(ABC):

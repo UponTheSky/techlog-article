@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class CreateArticleOutDTO(BaseModel):
     title: str
     content: Optional[str] = None
+    thumbnail_url: Optional[str] = None
     author_id: UUID
 
 

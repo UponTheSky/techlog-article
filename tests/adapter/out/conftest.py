@@ -16,8 +16,8 @@ from techlog_article.common.database import models
 POSTGRES_VERSION = "15.0"
 
 
-@pytest_asyncio.fixture(scope="session")
-async def db_session():
+@pytest_asyncio.fixture(scope="session", autouse=True)
+async def setup():
     container = PostgresContainer(f"postgres:{POSTGRES_VERSION}")
     container.start()
 
@@ -32,6 +32,14 @@ async def db_session():
     async with engine.begin() as connection:
         await connection.run_sync(models.Base.metadata.create_all)
 
+        yield
+
+        os.environ["DB_URL"] = original_db_url
+        container.stop()
+
+
+@pytest_asyncio.fixture(scope="function", autouse=True)
+async def db_session():
     # get the session(setting the context should occur beforehand)
     set_db_session_context(session_id=42)
     current_session = get_current_session()
@@ -39,8 +47,6 @@ async def db_session():
     yield current_session
 
     await current_session.close()
-    os.environ["DB_URL"] = original_db_url
-    container.stop()
 
 
 @pytest_asyncio.fixture(scope="function", autouse=True)

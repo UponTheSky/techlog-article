@@ -19,5 +19,6 @@ jobs:
         uses: ./.github/actions/dependencies
         with:
           python-version: '3.11'
+          dependency-file: requirements.test.txt
       - name: run test action
         uses: ./.github/actions/test

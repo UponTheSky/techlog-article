@@ -2,7 +2,7 @@ from typing import Optional
 from abc import ABC, abstractmethod
 from uuid import UUID
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, ConfigDict
 
 from ._validation_helpers import (
     validate_username,
@@ -49,8 +49,7 @@ class UpdateAccountDTO(BaseModel):
 
         return match_passwords(target=v, source=source_password)
 
-    class Config:
-        description = "An optional version of SignUpDTO"
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UpdateAccountPort(ABC):

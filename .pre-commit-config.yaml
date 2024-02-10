@@ -29,11 +29,17 @@ repos:
       types: [python]
       stages: [commit]
 
-# from: https://python-poetry.org/docs/master/pre-commit-hooks/#usage
-- repo: https://github.com/python-poetry/poetry
-  rev: '1.4.2'
+# https://pdm-project.org/latest/usage/advanced/#hooks-for-pre-commit
+- repo: https://github.com/pdm-project/pdm
+  rev: 2.12.3
   hooks:
-    - id: poetry-check
-    # - id: poetry-lock => we omit this because we want our dependencies to be "locked" when developed
-    - id: poetry-export
-      args: ["--without-hashes", "--with", "test", "-o", "requirements.txt"]
+    # - id: pdm-lock-check => we omit this because we want our dependencies to be "locked" when developed
+    - id: pdm-export
+      name: export-test-dependencies
+      args: ["--without-hashes", "-f", "requirements", "-o", "requirements.test.txt", "-G", "test"]
+      files: ^pdm.lock$
+
+    - id: pdm-export
+      name: export-production-dependencies
+      args: ["--without-hashes", "-f", "requirements", "-o", "requirements.production.txt", "--production"]
+      files: ^pdm.lock$

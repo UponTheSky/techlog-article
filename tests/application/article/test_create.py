@@ -20,7 +20,12 @@ def service() -> CreateArticleService:
 
 @pytest.mark.asyncio
 async def test_passes_all_dto_fields(service: CreateArticleService):
-    kwargs = {"title": "1", "content": None, "author_id": uuid4()}
+    kwargs = {
+        "title": "1",
+        "content": None,
+        "author_id": uuid4(),
+        "thumbnail_url": None,
+    }
     in_dto = CreateArticleInDTO(**kwargs)
 
     with mock.patch.object(

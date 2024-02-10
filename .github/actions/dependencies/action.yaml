@@ -7,6 +7,9 @@ inputs:
     description: Python version
     required: false
     default: '3.11'
+  dependency-file:
+    description: The name of the file that is required for installing dependencies
+    required: true
 
 runs:
   using: composite
@@ -16,7 +19,9 @@ runs:
       with:
         python-version: ${{ inputs.python-version }}
     - name: install dependencies
+      env:
+        DEPENDENCY_FILE: ${{ inputs.dependency-file }}
       run: |
         python -m pip install --upgrade pip
-        pip install --no-cache-dir -r requirements.txt
+        pip install --no-cache-dir -r $DEPENDENCY_FILE
       shell: bash

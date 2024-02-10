@@ -1,36 +1,35 @@
-[tool.poetry]
-name = "techlog"
-version = "0.1.0"
-description = "a microservice for CRUD operations for the Techlog project"
-authors = ["UponTheSky <sailing.to.orbis@gmail.com>"]
-license = "Proprietary"
-readme = "README.md"
+[tool.pdm]
+[tool.pdm.dev-dependencies]
+dev = ["ruff<1.0.0,>=0.1.7", "alembic<2.0.0,>=1.11.0"]
+test = [
+    "pytest<8.0.0,>=7.3.1",
+    "pytest-asyncio<1.0.0,>=0.21.0",
+    "testcontainers-postgres<1.0.0,>=0.0.1rc1",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-fastapi = {extras = ["full"], version = "^0.104.1"}
-sqlalchemy = "^2.0.23"
-python-multipart = "^0.0.6"
-uvicorn = "^0.21.1"
-python-jose = { extras = ["cryptography"], version = "^3.3.0" }
-passlib = { extras = ["bcrypt"], version = "^1.7.4" }
-asyncpg = "^0.29.0"
-httpx = "^0.25.2"
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.1.7"
-alembic = "^1.11.0"
-
-[tool.poetry.group.test.dependencies]
-pytest = "^7.3.1"
-pytest-asyncio = "^0.21.0"
-testcontainers-postgres = "^0.0.1rc1"
-alembic = "^1.10.4"
-
-[tool.ruff]
-
-[tool.black]
-
+[tool.pdm.build]
+includes = []
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[project]
+authors = [{ name = "UponTheSky", email = "sailing.to.orbis@gmail.com" }]
+license = { text = "Proprietary" }
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "fastapi[full]<1.0.0,>=0.104.1",
+    "sqlalchemy<3.0.0,>=2.0.23",
+    "python-multipart<1.0.0,>=0.0.6",
+    "uvicorn<1.0.0,>=0.21.1",
+    "python-jose[cryptography]<4.0.0,>=3.3.0",
+    "passlib[bcrypt]<2.0.0,>=1.7.4",
+    "asyncpg<1.0.0,>=0.29.0",
+    "httpx<1.0.0,>=0.25.2",
+    "pydantic-settings>=2.1.0",
+]
+name = "techlog"
+version = "0.1.1"
+description = "The backend service for the Techlog project"
+readme = "README.md"
