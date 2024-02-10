@@ -99,11 +99,9 @@ async def read_article_by_id(
 @router.patch("/{id}", status_code=HTTPStatus.HTTP_200_OK)
 async def update_article(
     *,
-    id: UUID = Path(),
+    id: Annotated[UUID, Path()],
+    dto: Annotated[UpdateArticleInDTO, Body()],
     author_id: CurrentUserIdDependency,
-    dto: UpdateArticleInDTO = Body(
-        description="data required for updating an article item"
-    ),
     update_article_in_port: Annotated[
         UpdateArticleInPort, Depends(UpdateArticeService)
     ],

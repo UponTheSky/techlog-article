@@ -11,7 +11,7 @@ from ...application.services import CurrentUserIdDependency, LoginService, Logou
 
 router = APIRouter(
     prefix="/auth",
-    tags=[Tags.user, Tags.auth],
+    tags=[Tags.auth],
     responses={HTTPStatus.HTTP_404_NOT_FOUND: {"description": "Not Found"}},
 )
 
