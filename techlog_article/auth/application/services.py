@@ -100,11 +100,11 @@ class LoginService(LoginPort):
         user_in_db = await self._read_user_port.read_user_by_name(
             username=login_dto.username
         )
+
         if not user_in_db:
             raise HTTPException(
                 status_code=HTTPStatus.HTTP_404_NOT_FOUND,
-                detail=f"User with username {login_dto.username}\
-                     doesn't exist in the DB",
+                detail=f"User with username {login_dto.username} doesn't exist in the DB",
                 headers={"WWW-authenticate": "Bearer"},
             )
 

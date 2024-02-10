@@ -10,6 +10,7 @@ from ._validation_helper import validate_title
 class UpdateArticleInDTO(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
+    thumbnail_url: Optional[str] = None
 
     @validator("title")
     def title_is_valid(cls, v):
