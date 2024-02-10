@@ -23,6 +23,8 @@ pyasn1==0.5.1
 pycparser==2.21; platform_python_implementation != "PyPy"
 pydantic==2.6.1
 pydantic-core==2.16.2
+pydantic-settings==2.1.0
+python-dotenv==1.0.1
 python-jose==3.3.0
 python-multipart==0.0.8
 rsa==4.9

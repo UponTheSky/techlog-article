@@ -29,8 +29,10 @@ pyasn1==0.5.1
 pycparser==2.21; platform_python_implementation != "PyPy"
 pydantic==2.6.1
 pydantic-core==2.16.2
+pydantic-settings==2.1.0
 pytest==7.4.4
 pytest-asyncio==0.23.5
+python-dotenv==1.0.1
 python-jose==3.3.0
 python-multipart==0.0.8
 pywin32==306; sys_platform == "win32"

@@ -37,7 +37,7 @@ class User(TimestampMixin, Base):
     id: Mapped[UUID] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(16), index=True)
     email: Mapped[str] = mapped_column(index=True)
-    hashed_password: Mapped[str] = mapped_column()
+    hashed_password: Mapped[str] = mapped_column(Text)
 
     # relationship
     auth: Mapped["Auth"] = relationship(back_populates="user")
@@ -58,7 +58,7 @@ class Auth(TimestampMixin, Base):
     # fields
     id: Mapped[UUID] = mapped_column(primary_key=True)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), index=True)
-    access_token: Mapped[Optional[str]] = mapped_column(String(255))
+    access_token: Mapped[Optional[str]] = mapped_column(String(255), default=None)
 
     # relationship
     user: Mapped[User] = relationship(back_populates="auth")
@@ -74,8 +74,8 @@ class Article(TimestampMixin, Base):
     id: Mapped[UUID] = mapped_column(primary_key=True)
     author_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), index=True)
     title: Mapped[str] = mapped_column(String(32))
-    content: Mapped[Optional[str]] = mapped_column(Text)
-    thumbnail_url: Mapped[Optional[str]] = mapped_column(Text)
+    content: Mapped[Optional[str]] = mapped_column(Text, default=None)
+    thumbnail_url: Mapped[Optional[str]] = mapped_column(Text, default=None)
 
     # relatioship
     author: Mapped[User] = relationship(back_populates="articles")

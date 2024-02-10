@@ -14,7 +14,7 @@ from ..config import config
 db_session_context: ContextVar[Optional[int]] = ContextVar(
     "db_session_context", default=None
 )
-engine = create_async_engine(url=config.DB_URL)
+engine = create_async_engine(url=config.DB_URL, echo=True)
 
 
 def get_db_session_context() -> int:
